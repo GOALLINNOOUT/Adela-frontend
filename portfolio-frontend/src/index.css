@@ -1,0 +1,59 @@
+:root {
+  --max-width: 1200px;
+  --navbar-height: 64px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1;
+  padding-top: var(--navbar-height);
+  min-height: calc(100vh - var(--navbar-height));
+}
+
+.container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.section {
+  padding: 4rem 0;
+}
+
+.spotify-playlist-container {
+  max-width: var(--max-width);
+  margin: 2rem auto;
+  padding: 0 1rem;
+  width: 100%;
+  transition: all 0.3s ease;
+}
+
+.spotify-playlist-container iframe {
+  transition: height 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+  .section {
+    padding: 2rem 0;
+  }
+  
+  .container {
+    padding: 1rem;
+  }
+}

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import {
   Box,
   Container,
@@ -132,8 +133,26 @@ function Testimonials() {
   };
 
   return (
-    <Box>
-      <Container sx={{ py: 8 }}>
+    <>
+      <Helmet>
+        <title>Testimonials | Adela Portfolio</title>
+        <meta name="description" content="Read testimonials and reviews about Adela's work and projects. Share your experience and see what others say." />
+        <meta name="keywords" content="Adela, testimonials, reviews, feedback, portfolio, web development" />
+        <meta name="author" content="ADELA" />
+        <meta property="og:title" content="Testimonials | Adela Portfolio" />
+        <meta property="og:description" content="Read testimonials and reviews about Adela's work and projects. Share your experience and see what others say." />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://adelaportfolio.vercel.app/assets/hero-982354f0.jpg" />
+        <meta property="og:url" content="https://adelaportfolio.vercel.app/testimonials" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Testimonials | Adela Portfolio" />
+        <meta name="twitter:description" content="Read testimonials and reviews about Adela's work and projects. Share your experience and see what others say." />
+        <meta name="twitter:image" content="https://adelaportfolio.vercel.app/assets/hero-982354f0.jpg" />
+        <link rel="canonical" href="https://adelaportfolio.vercel.app/testimonials" />
+      </Helmet>
+      {/* ...existing code... */}
+      <Box>
+        <Container sx={{ py: 8 }}>
         <SectionHeading
           title="Testimonials"
           subtitle="What people say about me and my projects"
@@ -280,6 +299,7 @@ function Testimonials() {
         </Alert>
       </Snackbar>
     </Box>
+    </>
   );
 }
 

@@ -39,6 +39,7 @@ import {
   Visibility 
 } from '@mui/icons-material';
 import { getImageUrl, handleImageError } from '../utils/imageHelper';
+import { Helmet } from 'react-helmet-async';
 import { updateMetaTags, resetMetaTags } from '../utils/metaTags';
 import Comments from '../components/Comments';
 
@@ -468,8 +469,27 @@ function BlogPost() {
   if (!post) {
     return null;
   }
+  const fullImageUrl = `${window.location.origin}${getImageUrl(displayPost.image)}`;
+  const canonicalUrl = `${window.location.origin}/blog/${id}`;
   return (
     <>
+      <Helmet>
+        <title>{displayPost.title ? `${displayPost.title} | ADELA's Blog` : "Blog Post | ADELA's Blog"}</title>
+        <meta name="description" content={displayPost.excerpt || "Read this blog post on ADELA's Blog."} />
+        <meta name="keywords" content={displayPost.tags ? displayPost.tags.join(',') : "blog, web development, ADELA"} />
+        <meta name="author" content={displayPost.author || "ADELA"} />
+        <meta property="og:title" content={displayPost.title ? `${displayPost.title} | ADELA's Blog` : "Blog Post | ADELA's Blog"} />
+        <meta property="og:description" content={displayPost.excerpt || "Read this blog post on ADELA's Blog."} />
+        <meta property="og:type" content="article" />
+        <meta property="og:image" content={fullImageUrl} />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={displayPost.title ? `${displayPost.title} | ADELA's Blog` : "Blog Post | ADELA's Blog"} />
+        <meta name="twitter:description" content={displayPost.excerpt || "Read this blog post on ADELA's Blog."} />
+        <meta name="twitter:image" content={fullImageUrl} />
+        <link rel="canonical" href={canonicalUrl} />
+      </Helmet>
+      {/* ...existing code... */}
       <Box sx={{ 
         position: 'fixed', 
         top: 0, 
@@ -686,7 +706,6 @@ function BlogPost() {
             </Box>
           )}
 
-          
           <Divider sx={{ my: 3 }} />
         </Box>
       </Container>

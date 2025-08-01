@@ -570,19 +570,27 @@ function BlogPost() {
           ) : (
             <Box ref={blogContentRef}>
               <Box
-                component="img"
-                src={getImageUrl(displayPost.image)}
-                alt={displayPost.title}
-                onError={handleImageError}
+                component="picture"
                 sx={{
                   width: '100%',
                   height: { xs: '200px', md: '400px' },
-                  objectFit: 'cover',
+                  display: 'block',
                   borderRadius: 2,
                   mb: 4,
                   backgroundColor: 'grey.100',
                 }}
-              />
+              >
+                <source srcSet={getImageUrl(displayPost.image).replace(/\.(jpg|png)$/i, '.webp')} type="image/webp" />
+                <img
+                  src={getImageUrl(displayPost.image)}
+                  alt={displayPost.title}
+                  loading="lazy"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px', backgroundColor: '#f5f5f5' }}
+                  width="800"
+                  height="400"
+                  onError={e => handleImageError(e)}
+                />
+              </Box>
 
               <Box mb={4}>
                 <Chip label={displayPost.category} color="primary" sx={{ mb: 2 }} />

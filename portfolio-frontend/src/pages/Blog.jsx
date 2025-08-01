@@ -242,16 +242,20 @@ function Blog() {
                       to={`/blog/${post._id}`}
                     >
                       <CardMedia
-                        component="img"
-                        height="200"
-                        image={getImageUrl(post.image)}
-                        alt={post.title}
-                        sx={{ 
-                          objectFit: 'cover',
-                          backgroundColor: 'grey.100'
-                        }}
-                        onError={(e) => handleImageError(e)}
-                      />
+                        component="picture"
+                        sx={{ height: 200, width: '100%' }}
+                      >
+                        <source srcSet={getImageUrl(post.image).replace(/\.(jpg|png)$/i, '.webp')} type="image/webp" />
+                        <img
+                          src={getImageUrl(post.image)}
+                          alt={post.title}
+                          loading="lazy"
+                          style={{ width: '100%', height: 200, objectFit: 'cover', backgroundColor: '#f5f5f5', borderRadius: '4px' }}
+                          width="380"
+                          height="200"
+                          onError={handleImageError}
+                        />
+                      </CardMedia>
                       <CardContent sx={{ flexGrow: 1 }}>
                         <Typography
                           variant="overline"

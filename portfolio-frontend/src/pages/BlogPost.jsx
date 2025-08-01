@@ -183,19 +183,16 @@ function BlogPost() {
         script.type = 'application/ld+json';
         document.head.appendChild(script);
       }
-      if (script) {
-        script.textContent = JSON.stringify(schema);
-      }
+      script.textContent = JSON.stringify(schema);
 
+      
       let canonical = document.querySelector("link[rel='canonical']");
       if (!canonical) {
         canonical = document.createElement('link');
         canonical.rel = 'canonical';
         document.head.appendChild(canonical);
       }
-      if (canonical) {
-        canonical.href = canonicalUrl;
-      }
+      canonical.href = canonicalUrl;
     }
   }, [post, id]);
 
@@ -203,9 +200,9 @@ function BlogPost() {
   useEffect(() => {
     return () => {
       const script = document.querySelector('#blog-post-schema');
-      if (script && script.parentNode) script.parentNode.removeChild(script);
+      if (script) script.remove();
       const canonical = document.querySelector("link[rel='canonical']");
-      if (canonical && canonical.parentNode) canonical.parentNode.removeChild(canonical);
+      if (canonical) canonical.remove();
     };
   }, []);
 

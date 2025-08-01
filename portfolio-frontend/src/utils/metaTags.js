@@ -1,24 +1,44 @@
 export const updateMetaTags = (title, description, image, canonicalUrl) => {
 
   document.title = title;
-  
 
-  document.querySelector('meta[name="description"]').setAttribute('content', description);
+  // Helper to get or create a meta tag
+  const getOrCreateMeta = (selector, attrs = {}) => {
+    let tag = document.querySelector(selector);
+    if (!tag) {
+      tag = document.createElement('meta');
+      Object.entries(attrs).forEach(([k, v]) => tag.setAttribute(k, v));
+      document.head.appendChild(tag);
+    }
+    return tag;
+  };
 
- 
-  document.querySelector('meta[property="og:title"]').setAttribute('content', title);
-  document.querySelector('meta[property="og:description"]').setAttribute('content', description);
-  document.querySelector('meta[property="og:image"]').setAttribute('content', image);
+  // Description
+  const descMeta = getOrCreateMeta('meta[name="description"]', { name: 'description' });
+  if (descMeta) descMeta.setAttribute('content', description);
+
+  // Open Graph
+  const ogTitle = getOrCreateMeta('meta[property="og:title"]', { property: 'og:title' });
+  if (ogTitle) ogTitle.setAttribute('content', title);
+  const ogDesc = getOrCreateMeta('meta[property="og:description"]', { property: 'og:description' });
+  if (ogDesc) ogDesc.setAttribute('content', description);
+  const ogImg = getOrCreateMeta('meta[property="og:image"]', { property: 'og:image' });
+  if (ogImg) ogImg.setAttribute('content', image);
   if (canonicalUrl) {
-    document.querySelector('meta[property="og:url"]').setAttribute('content', canonicalUrl);
+    const ogUrl = getOrCreateMeta('meta[property="og:url"]', { property: 'og:url' });
+    if (ogUrl) ogUrl.setAttribute('content', canonicalUrl);
   }
 
-
-  document.querySelector('meta[property="twitter:title"]').setAttribute('content', title);
-  document.querySelector('meta[property="twitter:description"]').setAttribute('content', description);
-  document.querySelector('meta[property="twitter:image"]').setAttribute('content', image);
+  // Twitter
+  const twTitle = getOrCreateMeta('meta[property="twitter:title"]', { property: 'twitter:title' });
+  if (twTitle) twTitle.setAttribute('content', title);
+  const twDesc = getOrCreateMeta('meta[property="twitter:description"]', { property: 'twitter:description' });
+  if (twDesc) twDesc.setAttribute('content', description);
+  const twImg = getOrCreateMeta('meta[property="twitter:image"]', { property: 'twitter:image' });
+  if (twImg) twImg.setAttribute('content', image);
   if (canonicalUrl) {
-    document.querySelector('meta[property="twitter:url"]').setAttribute('content', canonicalUrl);
+    const twUrl = getOrCreateMeta('meta[property="twitter:url"]', { property: 'twitter:url' });
+    if (twUrl) twUrl.setAttribute('content', canonicalUrl);
   }
 
 
@@ -43,8 +63,8 @@ export const updateMetaTags = (title, description, image, canonicalUrl) => {
 export const resetMetaTags = () => {
   const defaultTitle = "ADELA's Portfolio - Full Stack Developer";
   const defaultDesc = "Professional portfolio showcasing Adela's skills in web development projects, blog posts, and expertise in frontend and backend development. Explore my work in React, Node.js, and modern web technologies.";
-  const defaultImage = "https://portfolio-frontend-wheat-ten.vercel.app/assets/hero-982354f0.jpg";
-  const defaultUrl = "https://portfolio-frontend-wheat-ten.vercel.app";
+  const defaultImage = "https://adelaportfolio.vercel.app/assets/hero-982354f0.jpg";
+  const defaultUrl = "https://adelaportfolio.vercel.app";
 
 
   ['article:published_time', 'article:author', 'article:section'].forEach(property => {

@@ -183,16 +183,19 @@ function BlogPost() {
         script.type = 'application/ld+json';
         document.head.appendChild(script);
       }
-      script.textContent = JSON.stringify(schema);
+      if (script) {
+        script.textContent = JSON.stringify(schema);
+      }
 
-      
       let canonical = document.querySelector("link[rel='canonical']");
       if (!canonical) {
         canonical = document.createElement('link');
         canonical.rel = 'canonical';
         document.head.appendChild(canonical);
       }
-      canonical.href = canonicalUrl;
+      if (canonical) {
+        canonical.href = canonicalUrl;
+      }
     }
   }, [post, id]);
 
@@ -200,9 +203,9 @@ function BlogPost() {
   useEffect(() => {
     return () => {
       const script = document.querySelector('#blog-post-schema');
-      if (script) script.remove();
+      if (script && script.parentNode) script.parentNode.removeChild(script);
       const canonical = document.querySelector("link[rel='canonical']");
-      if (canonical) canonical.remove();
+      if (canonical && canonical.parentNode) canonical.parentNode.removeChild(canonical);
     };
   }, []);
 

@@ -38,18 +38,26 @@ function Home() {
   }, []);
 
   return (
-    <Box component="main">      <Helmet>
+    <Box component="main">
+      <Helmet>
         <title>Adela - Full Stack Developer | Affordable Web Development</title>
         <meta name="description" content="Experienced Full Stack Developer. Specializing in affordable web development, modern web applications, and creative solutions. Young and innovative developer delivering quality results." />
-        <meta name="keywords" content="Full Stack Developer , Web Developer, Affordable Web Developer, Young Web Developer, React Developer Nigeria, Node.js Developer Nigeria, MongoDB integration, JavaScript, TypeScript, Web Development" />
+        <meta name="keywords" content="Adela, Full Stack Developer, Web Developer, Affordable Web Developer, Young Web Developer, React Developer, Nigeria, Node.js Developer, MongoDB, JavaScript, TypeScript, Web Development, UI/UX Design, Portfolio, Modern Web Applications, API Development, Database Management, Git, Docker, Postman, VS Code, GitHub, Framer Motion, Material-UI, CSS3, HTML5, PHP, MySQL, Express.js, RESTful APIs, Frontend, Backend, Designer, Creative Developer, Software Engineer, Client Testimonials, Skills, Projects, Contact" />
+        <meta name="author" content="ADELA" />
         <meta property="og:title" content="Adela - Full Stack Developer" />
         <meta property="og:description" content="Young and innovative Full Stack Developer, offering affordable web development services with modern technologies." />
         <meta property="og:image" content={heroImage} />
         <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://adelaportfolio.vercel.app/" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Adela - Full Stack Developer" />
+        <meta name="twitter:description" content="Experienced Full Stack Developer. Specializing in affordable web development, modern web applications, and creative solutions." />
+        <meta name="twitter:image" content={heroImage} />
         <meta name="robots" content="index, follow" />
-        <link rel="canonical" href={window.location.href} />
+        <link rel="canonical" href="https://adelaportfolio.vercel.app/" />
         <script type="application/ld+json">
-          {JSON.stringify({            "@context": "http://schema.org",
+          {JSON.stringify({
+            "@context": "http://schema.org",
             "@type": "Person",
             "name": "Adela",
             "jobTitle": "Full Stack Developer & Designer",
@@ -74,8 +82,7 @@ function Home() {
               "API Development",
               "Affordable Web Solutions",
               "Modern Web Applications"
-            ],
-           
+            ]
           })}
         </script>
       </Helmet>

@@ -50,7 +50,6 @@ function BlogPost() {
   const [translatedPost, setTranslatedPost] = useState(null);
   const [loading, setLoading] = useState(true);
   const [translating, setTranslating] = useState(false);
-  const saveReadingProgress = (progress, scrollPosition) => {
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [currentUserReaction, setCurrentUserReaction] = useState(null);
   const [selectedLanguage, setSelectedLanguage] = useState('en');
@@ -183,16 +182,19 @@ function BlogPost() {
         script.type = 'application/ld+json';
         document.head.appendChild(script);
       }
-      script.textContent = JSON.stringify(schema);
+      if (script) {
+        script.textContent = JSON.stringify(schema);
+      }
 
-      
       let canonical = document.querySelector("link[rel='canonical']");
       if (!canonical) {
         canonical = document.createElement('link');
         canonical.rel = 'canonical';
         document.head.appendChild(canonical);
       }
-      canonical.href = canonicalUrl;
+      if (canonical) {
+        canonical.href = canonicalUrl;
+      }
     }
   }, [post, id]);
 

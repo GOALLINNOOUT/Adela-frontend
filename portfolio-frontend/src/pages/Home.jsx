@@ -203,8 +203,9 @@ function Home() {
                     to="/portfolio"
                     variant="outlined"
                     fullWidth
+                    aria-label="Learn more about E-commerce Platform"
                   >
-                    Learn More
+                    Learn More about E-commerce Platform
                   </Button>
                 </Box>
               </Card>
@@ -245,8 +246,9 @@ function Home() {
                     to="/portfolio"
                     variant="outlined"
                     fullWidth
+                    aria-label="Learn more about Portfolio Website"
                   >
-                    Learn More
+                    Learn More about Portfolio Website
                   </Button>
                 </Box>
               </Card>
@@ -287,8 +289,9 @@ function Home() {
                     to="/portfolio"
                     variant="outlined"
                     fullWidth
+                    aria-label="Learn more about JC's Closet"
                   >
-                    Learn More
+                    Learn More about JC's Closet
                   </Button>
                 </Box>
               </Card>

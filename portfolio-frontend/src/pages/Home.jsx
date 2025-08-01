@@ -146,24 +146,16 @@ function Home() {
                   justifyContent: 'center',
                 }}
               >
-                <Box
-                  component="picture"
+                             <Box
+                  component="img"
+                  src={heroImage}
+                  alt="Adela - Full Stack Developer and Designer"
                   sx={{
                     maxWidth: '100%',
                     height: 'auto',
                     borderRadius: 2,
                   }}
-                >
-                  <source srcSet={heroImage.replace(/\.(jpg|png)$/i, '.webp')} type="image/webp" />
-                  <img
-                    src={heroImage}
-                    alt="Adela - Full Stack Developer and Designer"
-                    loading="lazy"
-                    style={{ maxWidth: '100%', height: 'auto', borderRadius: '8px' }}
-                    width="600"
-                    height="400"
-                  />
-                </Box>
+                />
               </MotionBox>
             </Grid>
           </Grid>
@@ -192,19 +184,11 @@ function Home() {
                 '&:hover': { transform: 'translateY(-8px)' },
               }}>
                 <CardMedia
-                  component="picture"
-                  sx={{ height: 200, width: '100%' }}
-                >
-                  <source srcSet={project1Image.replace(/\.(jpg|png)$/i, '.webp')} type="image/webp" />
-                  <img
-                    src={project1Image}
-                    alt="Modern E-commerce Platform Project - Full Stack Development"
-                    loading="lazy"
-                    style={{ width: '100%', height: 200, objectFit: 'cover', borderRadius: '4px' }}
-                    width="400"
-                    height="200"
-                  />
-                </CardMedia>
+                  component="img"
+                  height="200"
+                  image={project1Image}
+                  alt="Modern E-commerce Platform Project - Full Stack Development"
+                />
                 <CardContent sx={{ flexGrow: 1 }}>
                   <Typography variant="h5" component="h3" gutterBottom>
                     E-commerce Platform
@@ -243,19 +227,11 @@ function Home() {
                 '&:hover': { transform: 'translateY(-8px)' },
               }}>
                 <CardMedia
-                  component="picture"
-                  sx={{ height: 200, width: '100%' }}
-                >
-                  <source srcSet={project2Image.replace(/\.(jpg|png)$/i, '.webp')} type="image/webp" />
-                  <img
-                    src={project2Image}
-                    alt="Modern Portfolio Website Built with React and Material-UI"
-                    loading="lazy"
-                    style={{ width: '100%', height: 200, objectFit: 'cover', borderRadius: '4px' }}
-                    width="400"
-                    height="200"
-                  />
-                </CardMedia>
+                  component="img"
+                  height="200"
+                  image={project2Image}
+                  alt="Modern Portfolio Website Built with React and Material-UI"
+                />
                 <CardContent sx={{ flexGrow: 1 }}>
                   <Typography variant="h5" component="h3" gutterBottom>
                     Portfolio Website
@@ -294,19 +270,11 @@ function Home() {
                 '&:hover': { transform: 'translateY(-8px)' },
               }}>
                 <CardMedia
-                  component="picture"
-                  sx={{ height: 200, width: '100%' }}
-                >
-                  <source srcSet={jcclosetImage.replace(/\.(jpg|png)$/i, '.webp')} type="image/webp" />
-                  <img
-                    src={jcclosetImage}
-                    alt="JC's Closet - Fashion and Fragrance E-commerce"
-                    loading="lazy"
-                    style={{ width: '100%', height: 200, objectFit: 'cover', borderRadius: '4px' }}
-                    width="400"
-                    height="200"
-                  />
-                </CardMedia>
+                  component="img"
+                  height="200"
+                  image={jcclosetImage}
+                  alt="JC's Closet - Fashion and Fragrance E-commerce"
+                />
                 <CardContent sx={{ flexGrow: 1 }}>
                   <Typography variant="h5" component="h3" gutterBottom>
                     JC's Closet

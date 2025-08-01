@@ -50,6 +50,7 @@ function BlogPost() {
   const [translatedPost, setTranslatedPost] = useState(null);
   const [loading, setLoading] = useState(true);
   const [translating, setTranslating] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [currentUserReaction, setCurrentUserReaction] = useState(null);
   const [selectedLanguage, setSelectedLanguage] = useState('en');
@@ -182,19 +183,16 @@ function BlogPost() {
         script.type = 'application/ld+json';
         document.head.appendChild(script);
       }
-      if (script) {
-        script.textContent = JSON.stringify(schema);
-      }
+      script.textContent = JSON.stringify(schema);
 
+      
       let canonical = document.querySelector("link[rel='canonical']");
       if (!canonical) {
         canonical = document.createElement('link');
         canonical.rel = 'canonical';
         document.head.appendChild(canonical);
       }
-      if (canonical) {
-        canonical.href = canonicalUrl;
-      }
+      canonical.href = canonicalUrl;
     }
   }, [post, id]);
 
@@ -572,27 +570,19 @@ function BlogPost() {
           ) : (
             <Box ref={blogContentRef}>
               <Box
-                component="picture"
+                component="img"
+                src={getImageUrl(displayPost.image)}
+                alt={displayPost.title}
+                onError={handleImageError}
                 sx={{
                   width: '100%',
                   height: { xs: '200px', md: '400px' },
-                  display: 'block',
+                  objectFit: 'cover',
                   borderRadius: 2,
                   mb: 4,
                   backgroundColor: 'grey.100',
                 }}
-              >
-                <source srcSet={getImageUrl(displayPost.image).replace(/\.(jpg|png)$/i, '.webp')} type="image/webp" />
-                <img
-                  src={getImageUrl(displayPost.image)}
-                  alt={displayPost.title}
-                  loading="lazy"
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px', backgroundColor: '#f5f5f5' }}
-                  width="800"
-                  height="400"
-                  onError={e => handleImageError(e)}
-                />
-              </Box>
+              />
 
               <Box mb={4}>
                 <Chip label={displayPost.category} color="primary" sx={{ mb: 2 }} />

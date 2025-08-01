@@ -50,7 +50,7 @@ function BlogPost() {
   const [translatedPost, setTranslatedPost] = useState(null);
   const [loading, setLoading] = useState(true);
   const [translating, setTranslating] = useState(false);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const saveReadingProgress = (progress, scrollPosition) => {
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [currentUserReaction, setCurrentUserReaction] = useState(null);
   const [selectedLanguage, setSelectedLanguage] = useState('en');

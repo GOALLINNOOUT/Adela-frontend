@@ -6,7 +6,7 @@ import BrushIcon from '@mui/icons-material/Brush';
 import DevicesIcon from '@mui/icons-material/Devices';
 import { Helmet } from 'react-helmet-async';
 
-import aboutImage from '../assets/images/about.JPG';
+import aboutImage from '../assets/images/about.jpeg';
 
 const skills = [
   {

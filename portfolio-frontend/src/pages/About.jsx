@@ -5,7 +5,24 @@ import CodeIcon from '@mui/icons-material/Code';
 import BrushIcon from '@mui/icons-material/Brush';
 import DevicesIcon from '@mui/icons-material/Devices';
 import { Helmet } from 'react-helmet-async';
+
 import aboutImage from '../assets/images/about.JPG';
+
+const skills = [
+  {
+    icon: <CodeIcon fontSize="large" color="primary" />,
+    title: "Frontend Development",
+    description: "Building responsive and interactive user interfaces using modern frameworks.",
+    technologies: ["React", "JavaScript", "HTML", "CSS", "Vite", "MUI", "Typescript"],
+  },
+  {
+    icon: <DevicesIcon fontSize="large" color="primary" />,
+    title: "Backend Development",
+    description: "Creating robust server-side applications and APIs.",
+    technologies: ["Node.js", "Express", "MongoDB", "REST API", "PHP", "MySQL"],
+  },
+ 
+];
 
 const MotionPaper = motion(Paper);
 function About() {

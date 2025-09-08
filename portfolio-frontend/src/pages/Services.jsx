@@ -13,6 +13,7 @@ import {
   Stack,
 } from '@mui/material';
 import { motion } from 'framer-motion';
+import { Helmet } from 'react-helmet-async';
 import SectionHeading from '../components/SectionHeading';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { Link as RouterLink } from 'react-router-dom';
@@ -51,6 +52,12 @@ const services = [
 function Services() {
   return (
     <Box>
+      <Helmet>
+        <title>Services | Adela Portfolio</title>
+        <meta name="description" content="Professional web development, consulting, and project services from Adela. Custom web apps, API development, and technical consulting." />
+        <meta name="keywords" content="web development, consulting, services, frontend, backend, Adela, adela portfolio, Adeyekun adelola" />
+        <link rel="canonical" href="https://adelaportfolio.vercel.app/services" />
+      </Helmet>
       <Container sx={{ py: 8 }}>
         <SectionHeading
           title="Services"

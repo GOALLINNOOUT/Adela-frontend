@@ -16,6 +16,7 @@ import {
   Stack,
 } from '@mui/material';
 import { motion } from 'framer-motion';
+import { Helmet } from 'react-helmet-async';
 import SectionHeading from '../components/SectionHeading';
 import LinkIcon from '@mui/icons-material/Link';
 import GitHubIcon from '@mui/icons-material/GitHub';
@@ -98,6 +99,12 @@ function Portfolio() {
 
   return (
     <Box>
+      <Helmet>
+        <title>Portfolio | Adela Portfolio</title>
+        <meta name="description" content="Explore Adela's portfolio showcasing web development, e-commerce, and full-stack projects built with React, Node.js, and Material-UI." />
+        <meta name="keywords" content="portfolio, projects, web development, react, nodejs, material-ui, React, Adela developer, Adela portfolio, Adela, Adeyekun Adelola, Full stack" />
+        <link rel="canonical" href="https://adelaportfolio.vercel.app/portfolio" />
+      </Helmet>
       <Container sx={{ py: 8 }}>
         <SectionHeading
           title="My Portfolio"

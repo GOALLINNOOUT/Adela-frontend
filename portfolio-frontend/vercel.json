@@ -2,7 +2,18 @@
   "framework": "vite",
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/blog/:id",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": "(?i)(facebookexternalhit|Facebot|Twitterbot|Slackbot|LinkedInBot|WhatsApp|TelegramBot|Pinterest|Googlebot)"
+        }
+      ],
+      "destination": "/api/seo/:id"
+    },
+    {
+      "source": "\\/(.*)",
       "destination": "/index.html"
     }
   ]

@@ -1,0 +1,43 @@
+export default async function middleware(request) {
+  const url = new URL(request.url);
+  const pathname = url.pathname;
+
+  // Only act on blog detail pages
+  if (!pathname.startsWith('/blog/')) {
+    return undefined; // continue to normal handling
+  }
+
+  const ua = (request.headers.get('user-agent') || '').toLowerCase();
+  const botRegex = /(facebookexternalhit|facebot|twitterbot|slackbot|linkedinbot|whatsapp|telegrambot|pinterest|googlebot|bingbot)/i;
+  if (!botRegex.test(ua)) {
+    return undefined; // not a crawler
+  }
+
+  try {
+    const id = pathname.split('/').pop();
+    if (!id) return undefined;
+
+    const BACKEND = (process.env.VITE_API_URL || process.env.API_BASE_URL || 'https://portfolio-backend-ckqx.onrender.com').replace(/\/$/, '');
+    const seoUrl = `${BACKEND}/api/blog/seo/${id}`;
+
+    const res = await fetch(seoUrl, { method: 'GET' });
+    const text = await res.text();
+
+    // Forward content-type and use caching for crawlers
+    const headers = new Headers();
+    const contentType = res.headers.get('content-type') || 'text/html; charset=utf-8';
+    headers.set('Content-Type', contentType);
+    headers.set('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
+
+    // Also copy known safe headers like ETag / Last-Modified
+    const etag = res.headers.get('etag');
+    if (etag) headers.set('ETag', etag);
+    const last = res.headers.get('last-modified');
+    if (last) headers.set('Last-Modified', last);
+
+    return new Response(text, { status: res.status, headers });
+  } catch (err) {
+    console.error('Middleware SEO proxy error:', err);
+    return undefined; // fallback to normal SPA
+  }
+}

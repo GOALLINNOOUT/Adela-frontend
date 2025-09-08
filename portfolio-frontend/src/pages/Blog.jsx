@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Helmet } from 'react-helmet-async';
 import {
   Box,
@@ -22,6 +22,7 @@ import {
   CardActions,
   Snackbar,
   CircularProgress,
+  Skeleton,
   Fab,
   useTheme,
   ToggleButtonGroup,
@@ -40,9 +41,53 @@ import { Link as RouterLink } from 'react-router-dom';
 
 const MotionCard = motion(Card);
 
+// Small image component that shows a placeholder while the real image loads
+function ImageWithPlaceholder({ src, alt }) {
+  const placeholder = getImageUrl('uploads/blog/default.jpg');
+  const [displaySrc, setDisplaySrc] = useState(placeholder);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoaded(false);
+    setDisplaySrc(placeholder);
+    if (!src) return;
+    const img = new Image();
+    img.src = src;
+    img.onload = () => {
+      if (!cancelled) {
+        setDisplaySrc(src);
+        setLoaded(true);
+      }
+    };
+    img.onerror = () => {
+      if (!cancelled) {
+        setDisplaySrc(placeholder);
+        setLoaded(true);
+      }
+    };
+    return () => {
+      cancelled = true;
+    };
+  }, [src]);
+
+  return (
+    <Box component="img"
+      src={displaySrc}
+      alt={alt}
+      sx={{ width: '100%', height: 200, objectFit: 'cover', backgroundColor: 'grey.100' }}
+      onError={(e) => handleImageError(e)}
+    />
+  );
+}
+
 function Blog() {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [blogPosts, setBlogPosts] = useState([]);
+  const [page, setPage] = useState(1);
+  const limit = 6;
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [sortBy, setSortBy] = useState('date');
@@ -51,27 +96,115 @@ function Blog() {
   const [showBookmarked, setShowBookmarked] = useState(false);
   const theme = useTheme();
   const { toggleColorMode, mode, isBlogPage } = useThemeContext();
+  const sentinelRef = useRef(null);
+  const abortControllerRef = useRef(null);
+  const [observerSupported, setObserverSupported] = useState(typeof window !== 'undefined' && 'IntersectionObserver' in window);
+  const minSkeletonMs = 200; // ensure skeleton shows at least this long (ms)
+
   useEffect(() => {
-    fetchBlogPosts();
+    // initial load
+    setBlogPosts([]);
+    setPage(1);
+    setHasMore(true);
+    fetchBlogPosts(1, true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const fetchBlogPosts = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch('https://portfolio-backend-ckqx.onrender.com/api/blog');
-      
+  const fetchBlogPosts = async (pageArg = 1, replace = false) => {
+    // Abort any in-flight request before starting a new one
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
+  let skeletonStart = 0;
+  let aborted = false;
+  if (pageArg === 1) skeletonStart = Date.now();
+
+  try {
+      if (pageArg === 1) {
+        setLoading(true);
+      } else {
+        setLoadingMore(true);
+      }
+
+      const params = new URLSearchParams();
+      // These params are optional on the backend; if backend doesn't support pagination it will ignore them
+      params.append('page', pageArg);
+      params.append('limit', limit);
+      if (searchQuery) params.append('search', searchQuery);
+      if (selectedCategory && selectedCategory !== 'All') params.append('category', selectedCategory);
+      if (sortBy) params.append('sortBy', sortBy);
+
+      const url = `https://portfolio-backend-ckqx.onrender.com/api/blog?${params.toString()}`;
+      const response = await fetch(url, { signal: controller.signal });
+
       if (!response.ok) {
         throw new Error('Failed to fetch blog posts');
       }
-      
+
       const data = await response.json();
-      setBlogPosts(data);
+
+      // Backend might return a full array (no pagination) or an object with posts + meta
+      let posts = [];
+      let total = null;
+
+      if (Array.isArray(data)) {
+        posts = data;
+        total = posts.length;
+      } else if (data && Array.isArray(data.posts)) {
+        posts = data.posts;
+        if (typeof data.total === 'number') total = data.total;
+      } else if (data) {
+        // Unexpected shape: try to coerce
+        posts = Array.isArray(data) ? data : (data.posts || []);
+      }
+
+      if (replace) {
+        setBlogPosts(posts);
+      } else {
+        setBlogPosts(prev => [
+          ...prev,
+          ...posts.filter(p => !prev.find(x => x._id === p._id)),
+        ]);
+      }
+
+      // Determine hasMore:
+      // - If backend provides total, compare pages
+      // - If backend returned fewer than limit, assume end
+      if (typeof total === 'number') {
+        const fetched = (pageArg - 1) * limit + posts.length;
+        setHasMore(fetched < total);
+      } else {
+        setHasMore(posts.length === limit);
+      }
+
+      if (posts.length > 0) setPage(prev => prev + 1);
     } catch (error) {
+      if (error.name === 'AbortError') {
+        // Request was aborted; do not show error toast and skip waiting
+        aborted = true;
+        return;
+      }
       console.error('Error:', error);
       setSnackbarMessage('Failed to load blog posts');
       setSnackbarOpen(true);
+      setHasMore(false);
     } finally {
+      // Ensure skeleton is visible for at least minSkeletonMs on initial load
+      if (pageArg === 1 && !aborted && skeletonStart) {
+        const elapsed = Date.now() - skeletonStart;
+        const remaining = Math.max(0, minSkeletonMs - elapsed);
+        if (remaining > 0) {
+          await new Promise(resolve => setTimeout(resolve, remaining));
+        }
+      }
+
       setLoading(false);
+      setLoadingMore(false);
+      // clear controller if it's still the current one
+      if (abortControllerRef.current === controller) abortControllerRef.current = null;
     }
   };
 
@@ -152,6 +285,47 @@ function Blog() {
 
   // Use shared getImageUrl from utils/imageHelper
 
+  // Reset and refetch when search, category, sort, or bookmarked toggle changes
+  useEffect(() => {
+  // Cancel any in-flight request for previous filters
+  if (abortControllerRef.current) abortControllerRef.current.abort();
+  setBlogPosts([]);
+  setPage(1);
+  setHasMore(true);
+  fetchBlogPosts(1, true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery, selectedCategory, sortBy, showBookmarked]);
+
+  // IntersectionObserver for infinite scroll
+  const handleIntersect = useCallback((entries) => {
+    const entry = entries[0];
+    if (entry.isIntersecting && hasMore && !loadingMore && !loading) {
+      fetchBlogPosts(page);
+    }
+  }, [hasMore, loadingMore, loading, page]);
+
+  useEffect(() => {
+    if (!observerSupported) return;
+    const node = sentinelRef.current;
+    if (!node) return;
+    const observer = new IntersectionObserver(handleIntersect, {
+      root: null,
+      rootMargin: '200px',
+      threshold: 0.1,
+    });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [handleIntersect]);
+
+  // Abort any in-flight fetch on unmount
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
+
   return (
     <>
       <Helmet>
@@ -178,9 +352,42 @@ function Blog() {
             sx={{ color: mode === 'dark' ? 'text.primary' : 'inherit' }}
           />
           {loading ? (
-            <Box display="flex" justifyContent="center" my={4}>
-              <CircularProgress />
-            </Box>
+            <>
+              {/* Controls skeleton */}
+              <Box mb={4} display="flex" flexWrap="wrap" gap={2} alignItems="center">
+                <Skeleton variant="rectangular" width="40%" height={40} />
+                <Skeleton variant="rectangular" width={150} height={40} />
+                <Skeleton variant="rectangular" width={150} height={40} />
+                <Skeleton variant="circular" width={40} height={40} />
+              </Box>
+              {/* Grid skeleton for posts */}
+              <Grid container spacing={3}>
+                {Array.from({ length: 6 }).map((_, idx) => (
+                  <Grid item xs={12} sm={6} md={4} key={idx}>
+                    <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                      <Skeleton variant="rectangular" height={200} />
+                      <CardContent sx={{ flexGrow: 1 }}>
+                        <Skeleton variant="text" width="30%" />
+                        <Skeleton variant="text" width="80%" />
+                        <Skeleton variant="text" width="60%" />
+                        <Box display="flex" alignItems="center" gap={1} mt={2}>
+                          <Skeleton variant="circular" width={20} height={20} />
+                          <Skeleton variant="text" width="20%" />
+                          <Box sx={{ flexGrow: 1 }} />
+                          <Skeleton variant="text" width="20%" />
+                        </Box>
+                      </CardContent>
+                      <CardActions sx={{ p: 2 }}>
+                        <Skeleton variant="rectangular" width={100} height={36} />
+                        <Box sx={{ flexGrow: 1 }} />
+                        <Skeleton variant="circular" width={36} height={36} />
+                        <Skeleton variant="circular" width={36} height={36} />
+                      </CardActions>
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
+            </>
           ) : (
             <>
               <Box mb={4} display="flex" flexWrap="wrap" gap={2} alignItems="center">
@@ -228,30 +435,21 @@ function Blog() {
               <Grid container spacing={3}>
                 {filteredPosts.map((post) => (
                   <Grid item xs={12} sm={6} md={4} key={post._id}>
-                    <Card
+                    <MotionCard
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.35 }}
+                      whileHover={{ y: -4 }}
                       sx={{
                         height: '100%',
                         display: 'flex',
                         flexDirection: 'column',
                         transition: 'transform 0.2s',
-                        '&:hover': {
-                          transform: 'translateY(-4px)',
-                        },
                       }}
                       component={RouterLink}
                       to={`/blog/${post._id}`}
                     >
-                      <CardMedia
-                        component="img"
-                        height="200"
-                        image={getImageUrl(post.image)}
-                        alt={post.title}
-                        sx={{ 
-                          objectFit: 'cover',
-                          backgroundColor: 'grey.100'
-                        }}
-                        onError={(e) => handleImageError(e)}
-                      />
+                      <ImageWithPlaceholder src={getImageUrl(post.image)} alt={post.title} />
                       <CardContent sx={{ flexGrow: 1 }}>
                         <Typography
                           variant="overline"
@@ -335,10 +533,24 @@ function Blog() {
                           </IconButton>
                         </Tooltip>
                       </CardActions>
-                    </Card>
+                    </MotionCard>
                   </Grid>
                 ))}
               </Grid>
+              {/* Infinite scroll sentinel */}
+              <div ref={sentinelRef} />
+              {loadingMore && (
+                <Box display="flex" justifyContent="center" my={4}>
+                  <CircularProgress size={24} />
+                </Box>
+              )}
+              {!observerSupported && hasMore && (
+                <Box display="flex" justifyContent="center" my={4}>
+                  <Button variant="contained" onClick={() => fetchBlogPosts(page)} disabled={loadingMore}>
+                    {loadingMore ? <CircularProgress size={20} color="inherit" /> : 'Load more'}
+                  </Button>
+                </Box>
+              )}
               {filteredPosts.length === 0 && (
                 <Box textAlign="center" py={4}>
                   <Typography variant="h6" color="text.secondary">

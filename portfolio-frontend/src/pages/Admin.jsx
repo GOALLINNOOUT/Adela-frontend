@@ -137,7 +137,18 @@ function Admin() {
       if (!response.ok) throw new Error('Failed to fetch blog posts');
       
       const data = await response.json();
-      setBlogPosts(data);
+      // Backend may return either an array or a paginated object { posts: [], total, page, limit }
+      let postsArray = [];
+      if (Array.isArray(data)) postsArray = data;
+      else if (data && Array.isArray(data.posts)) postsArray = data.posts;
+      else {
+        // unexpected shape — fall back to empty array and warn in dev
+        postsArray = [];
+        if (process.env.NODE_ENV !== 'production') {
+          console.warn('fetchBlogPosts: unexpected response shape', data);
+        }
+      }
+      setBlogPosts(postsArray);
     } catch (error) {
       console.error('Error:', error);
       setSnackbar({

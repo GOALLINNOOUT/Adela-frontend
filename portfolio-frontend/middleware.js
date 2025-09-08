@@ -8,7 +8,17 @@ export default async function middleware(request) {
   }
 
   const ua = (request.headers.get('user-agent') || '').toLowerCase();
-  const botRegex = /(facebookexternalhit|facebot|twitterbot|slackbot|linkedinbot|whatsapp|telegrambot|pinterest|googlebot|bingbot)/i;
+
+  // Expanded bot detection list (common crawlers and social scrapers)
+  const BOT_AGENTS = [
+    'facebookexternalhit', 'facebot', 'twitterbot', 'slackbot', 'linkedinbot',
+    'whatsapp', 'telegrambot', 'pinterest', 'googlebot', 'bingbot',
+    'yandex', 'baiduspider', 'applebot', 'embedly', 'redditbot', 'discordbot',
+    'duckduckbot', 'slurp', 'msnbot', 'semrushbot', 'ahrefsbot', 'seokicks',
+    'mj12bot', 'rogerbot', 'exabot', 'dotbot', 'screaming frog'
+  ];
+
+  const botRegex = new RegExp(BOT_AGENTS.map(a => a.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')).join('|'), 'i');
   if (!botRegex.test(ua)) {
     return undefined; // not a crawler
   }

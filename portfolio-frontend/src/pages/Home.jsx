@@ -308,9 +308,9 @@ function Home() {
           <Typography variant="body1" align="center" color="text.secondary" paragraph>
             What my clients say about working with me
           </Typography>
-          <Grid container spacing={4}>
+          <Grid container spacing={4} justifyContent="center">
             {testimonials.map((testimonial, index) => (
-              <Grid item xs={12} sm={6} md={3} key={testimonial._id}>
+              <Grid item xs={12} sm={6} md={4} key={testimonial._id}>
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
@@ -319,12 +319,17 @@ function Home() {
                 >
                   <Card
                     sx={{
-                      height: '100%',
+                      // fixed height across breakpoints, responsive width via grid + maxWidth
+                      height: 260,
                       display: 'flex',
                       flexDirection: 'column',
                       alignItems: 'center',
                       textAlign: 'center',
                       p: 3,
+                      overflow: 'hidden',
+                      width: '100%',
+                      maxWidth: { xs: '100%', sm: 520, md: 560 },
+                      mx: 'auto',
                     }}
                   >
                     <Avatar
@@ -344,7 +349,19 @@ function Home() {
                     <Typography variant="body2" color="text.secondary" paragraph>
                       {testimonial.position} - {testimonial.rating} Stars
                     </Typography>
-                    <Typography variant="body1" sx={{ fontStyle: 'italic', mb: 2 }}>
+                    <Typography
+                      variant="body1"
+                      sx={{
+                        fontStyle: 'italic',
+                        mb: 2,
+                        // clamp long testimonials so cards keep the same height
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 3,
+                        WebkitBoxOrient: 'vertical',
+                      }}
+                    >
                       "{testimonial.testimonial}"
                     </Typography>
                   </Card>
@@ -361,15 +378,15 @@ function Home() {
           Technologies and tools I work with
         </Typography>
         
-        <Grid container spacing={4}>
-          <Grid item xs={12} sm={6} md={3}>
+        <Grid container spacing={4} justifyContent="center">
+          <Grid item xs={12} sm={6} md={4}>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
             >
-              <Card sx={{ height: '100%', p: 3 }}>
+              <Card sx={{ height: 220, p: 3, overflow: 'hidden', mx: 'auto', maxWidth: { xs: '100%', sm: 520, md: 520 } }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                   <CodeIcon color="primary" sx={{ fontSize: 40, mr: 1 }} />
                   <Typography variant="h6">Frontend</Typography>
@@ -387,14 +404,14 @@ function Home() {
             </motion.div>
           </Grid>
 
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid item xs={12} sm={6} md={4}>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.2 }}
             >
-              <Card sx={{ height: '100%', p: 3 }}>
+              <Card sx={{ height: 220, p: 3, overflow: 'hidden', mx: 'auto', maxWidth: { xs: '100%', sm: 520, md: 520 } }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                   <StorageIcon color="primary" sx={{ fontSize: 40, mr: 1 }} />
                   <Typography variant="h6">Backend</Typography>
@@ -413,14 +430,14 @@ function Home() {
 
           {/* Design skill card removed as per user request */}
 
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid item xs={12} sm={6} md={4}>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.6 }}
             >
-              <Card sx={{ height: '100%', p: 3 }}>
+              <Card sx={{ height: 220, p: 3, overflow: 'hidden', mx: 'auto', maxWidth: { xs: '100%', sm: 520, md: 520 } }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                   <BuildIcon color="primary" sx={{ fontSize: 40, mr: 1 }} />
                   <Typography variant="h6">Tools & Others</Typography>

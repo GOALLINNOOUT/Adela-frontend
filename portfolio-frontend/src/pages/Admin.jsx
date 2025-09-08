@@ -50,6 +50,9 @@ function Admin() {
   const [contacts, setContacts] = useState([]);
   const [blogPosts, setBlogPosts] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
   const [isCreatingPost, setIsCreatingPost] = useState(false);
   const [isUpdatingPost, setIsUpdatingPost] = useState(false);
   const [isDeletingPost, setIsDeletingPost] = useState(null);
@@ -77,7 +80,9 @@ function Admin() {
     if (isAuthenticated()) {
       fetchTestimonials();
       fetchContacts();
-      fetchBlogPosts();
+      fetchBlogPosts(1, false); // Start fresh from page 1
+      setCurrentPage(1); // Reset page counter
+      setHasMore(true); // Reset hasMore flag
     }
   }, [isAuthenticated()]);
 
@@ -127,8 +132,15 @@ function Admin() {
   };
 
 
-  const fetchBlogPosts = async () => {
-    try {      const response = await fetch('https://portfolio-backend-ckqx.onrender.com/api/blog', {
+  const fetchBlogPosts = async (page = 1, append = false) => {
+    try {
+      if (page === 1) {
+        setLoading(true);
+      } else {
+        setLoadingMore(true);
+      }
+
+      const response = await fetch(`https://portfolio-backend-ckqx.onrender.com/api/blog?page=${page}&limit=6`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -137,18 +149,26 @@ function Admin() {
       if (!response.ok) throw new Error('Failed to fetch blog posts');
       
       const data = await response.json();
-      // Backend may return either an array or a paginated object { posts: [], total, page, limit }
-      let postsArray = [];
-      if (Array.isArray(data)) postsArray = data;
-      else if (data && Array.isArray(data.posts)) postsArray = data.posts;
-      else {
+      
+      if (data && Array.isArray(data.posts)) {
+        if (append) {
+          setBlogPosts(prev => [...prev, ...data.posts]);
+        } else {
+          setBlogPosts(data.posts);
+        }
+        // Update pagination state
+        setHasMore(data.posts.length > 0 && data.page * data.limit < data.total);
+        setCurrentPage(data.page);
+      } else {
         // unexpected shape — fall back to empty array and warn in dev
-        postsArray = [];
         if (process.env.NODE_ENV !== 'production') {
           console.warn('fetchBlogPosts: unexpected response shape', data);
         }
+        if (!append) {
+          setBlogPosts([]);
+        }
+        setHasMore(false);
       }
-      setBlogPosts(postsArray);
     } catch (error) {
       console.error('Error:', error);
       setSnackbar({
@@ -156,6 +176,9 @@ function Admin() {
         message: 'Failed to load blog posts',
         severity: 'error',
       });
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
     }
   };  const handleCreatePost = async () => {
     try {
@@ -619,6 +642,18 @@ function Admin() {
                   </TableBody>
                 </Table>
               </TableContainer>
+              {hasMore && (
+                <Box display="flex" justifyContent="center" mt={2}>
+                  <Button
+                    variant="outlined"
+                    onClick={() => fetchBlogPosts(currentPage + 1, true)}
+                    disabled={loadingMore}
+                    startIcon={loadingMore ? <CircularProgress size={20} /> : null}
+                  >
+                    {loadingMore ? 'Loading...' : 'Load More'}
+                  </Button>
+                </Box>
+              )}
             </Box>
 
 

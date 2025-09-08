@@ -355,12 +355,29 @@ function Admin() {
 
   const handleEditPost = (post) => {
     setSelectedPost(post);
+    // Normalize tags: backend may return tags as JSON string, comma string, or array
+    const normalizedTags = (() => {
+      if (Array.isArray(post.tags)) return post.tags;
+      if (!post.tags) return [];
+      if (typeof post.tags === 'string') {
+        // try JSON.parse first (e.g. "[\"tag1\",\"tag2\"]")
+        try {
+          const parsed = JSON.parse(post.tags);
+          if (Array.isArray(parsed)) return parsed;
+        } catch (e) {
+          // ignore parse error and fall back to comma split
+        }
+        return post.tags.split(',').map(t => t.trim()).filter(t => t.length > 0);
+      }
+      return [];
+    })();
+
     setPostFormData({
       title: post.title,
       excerpt: post.excerpt,
       content: post.content,
       category: post.category,
-      tags: post.tags,
+      tags: normalizedTags,
       author: post.author,
       readTime: post.readTime,
       image: null
@@ -557,7 +574,7 @@ function Admin() {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {blogPosts.map((post) => (
+                    {(Array.isArray(blogPosts) ? blogPosts : []).map((post) => (
                       <TableRow key={post._id}>
                         <TableCell>{post.title}</TableCell>
                         <TableCell>{post.category}</TableCell>
@@ -610,7 +627,7 @@ function Admin() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {testimonials.map((testimonial) => (
+                  {(Array.isArray(testimonials) ? testimonials : []).map((testimonial) => (
                     <TableRow key={testimonial._id}>
                       <TableCell>{testimonial.name}</TableCell>
                       <TableCell>{testimonial.position}</TableCell>
@@ -669,7 +686,7 @@ function Admin() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {contacts.map((contact) => (
+                  {(Array.isArray(contacts) ? contacts : []).map((contact) => (
                     <TableRow key={contact._id}>
                       <TableCell>{new Date(contact.createdAt).toLocaleDateString()}</TableCell>
                       <TableCell>{contact.name}</TableCell>
@@ -739,10 +756,11 @@ function Admin() {
               onChange={(event, newValue) => {
                 setPostFormData({
                   ...postFormData,
-                  tags: newValue.map(tag => tag.trim()).filter(tag => tag.length > 0)
+                  tags: Array.isArray(newValue) ? newValue.map(tag => tag.trim()).filter(tag => tag.length > 0) : []
                 });
-              }}              renderTags={(value, getTagProps) =>
-                value.map((option, index) => {
+              }}
+              renderTags={(value, getTagProps) =>
+                (Array.isArray(value) ? value : []).map((option, index) => {
                   const { key, ...chipProps } = getTagProps({ index });
                   return <Chip key={key} {...chipProps} label={option} />;
                 })

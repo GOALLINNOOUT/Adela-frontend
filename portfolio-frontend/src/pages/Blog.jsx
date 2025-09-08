@@ -43,7 +43,15 @@ const MotionCard = motion(Card);
 
 // Small image component that shows a placeholder while the real image loads
 function ImageWithPlaceholder({ src, alt }) {
-  const placeholder = getImageUrl('uploads/blog/default.jpg');
+  // Use an inline SVG data URI with the 🖼 emoji as the placeholder
+  const defaultFallback = getImageUrl('uploads/blog/default.jpg');
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='800' height='400' viewBox='0 0 800 400'><rect width='100%' height='100%' fill='%23f3f4f6'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='72' font-family='Segoe UI, Roboto, Arial, sans-serif'>🖼</text></svg>`;
+  let placeholder;
+  try {
+    placeholder = `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+  } catch (e) {
+    placeholder = defaultFallback;
+  }
   const [displaySrc, setDisplaySrc] = useState(placeholder);
   const [loaded, setLoaded] = useState(false);
 
@@ -72,12 +80,23 @@ function ImageWithPlaceholder({ src, alt }) {
   }, [src]);
 
   return (
-    <Box component="img"
-      src={displaySrc}
-      alt={alt}
-      sx={{ width: '100%', height: 200, objectFit: 'cover', backgroundColor: 'grey.100' }}
-      onError={(e) => handleImageError(e)}
-    />
+    <Box sx={{ width: '100%', height: 200, overflow: 'hidden' }}>
+      {!loaded && <Box className="shimmer" sx={{ width: '100%', height: '100%' }} />}
+      <Box
+        component="img"
+        src={displaySrc}
+        alt={alt}
+        onError={(e) => handleImageError(e)}
+        sx={{
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          transition: 'opacity 300ms ease',
+          opacity: loaded ? 1 : 0,
+          position: 'relative',
+        }}
+      />
+    </Box>
   );
 }
 
@@ -89,6 +108,8 @@ function Blog() {
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [sortBy, setSortBy] = useState('date');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -133,7 +154,7 @@ function Blog() {
       // These params are optional on the backend; if backend doesn't support pagination it will ignore them
       params.append('page', pageArg);
       params.append('limit', limit);
-      if (searchQuery) params.append('search', searchQuery);
+  if (debouncedSearch) params.append('search', debouncedSearch);
       if (selectedCategory && selectedCategory !== 'All') params.append('category', selectedCategory);
       if (sortBy) params.append('sortBy', sortBy);
 
@@ -286,15 +307,28 @@ function Blog() {
   // Use shared getImageUrl from utils/imageHelper
 
   // Reset and refetch when search, category, sort, or bookmarked toggle changes
+  // debounce searchQuery -> debouncedSearch (500ms)
   useEffect(() => {
-  // Cancel any in-flight request for previous filters
-  if (abortControllerRef.current) abortControllerRef.current.abort();
-  setBlogPosts([]);
-  setPage(1);
-  setHasMore(true);
-  fetchBlogPosts(1, true);
+    setIsSearching(true);
+    const t = setTimeout(() => {
+      setDebouncedSearch(searchQuery.trim());
+      setIsSearching(false);
+    }, 500);
+    return () => {
+      clearTimeout(t);
+      setIsSearching(false);
+    };
+  }, [searchQuery]);
+
+  useEffect(() => {
+    // Cancel any in-flight request for previous filters
+    if (abortControllerRef.current) abortControllerRef.current.abort();
+    setBlogPosts([]);
+    setPage(1);
+    setHasMore(true);
+    fetchBlogPosts(1, true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchQuery, selectedCategory, sortBy, showBookmarked]);
+  }, [debouncedSearch, selectedCategory, sortBy, showBookmarked]);
 
   // IntersectionObserver for infinite scroll
   const handleIntersect = useCallback((entries) => {
@@ -399,6 +433,11 @@ function Blog() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   sx={{ flexGrow: 1 }}
                 />
+                {isSearching && (
+                  <Typography variant="caption" color="text.secondary" sx={{ ml: 1 }}>
+                    Searching...
+                  </Typography>
+                )}
                 <FormControl size="small" sx={{ minWidth: 150 }}>
                   <InputLabel>Category</InputLabel>
                   <Select

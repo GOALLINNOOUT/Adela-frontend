@@ -147,22 +147,25 @@ function BlogPost() {
       );
 
      
+      const safeTags = Array.isArray(post.tags) ? post.tags : (post.tags ? String(post.tags).split(',').map(t => t.trim()) : []);
+      const wordCount = post.content ? post.content.split(/\s+/).filter(Boolean).length : 0;
       const schema = {
         "@context": "https://schema.org",
         "@type": "BlogPosting",
-        "mainEntityOfPage": {
-          "@type": "WebPage",
-          "@id": canonicalUrl
-        },
+        // mainEntityOfPage can be a simple URL string
+        "mainEntityOfPage": canonicalUrl,
         "headline": post.title,
         "description": post.excerpt,
-        "image": fullImageUrl,
+        "image": {
+          "@type": "ImageObject",
+          "url": fullImageUrl
+        },
         "author": {
           "@type": "Person",
           "name": post.author
         },
-        "datePublished": post.createdAt,
-        "dateModified": post.updatedAt || post.createdAt,
+        "datePublished": post.createdAt ? new Date(post.createdAt).toISOString() : undefined,
+        "dateModified": (post.updatedAt || post.createdAt) ? new Date(post.updatedAt || post.createdAt).toISOString() : undefined,
         "publisher": {
           "@type": "Organization",
           "name": "ADELA's Blog",
@@ -171,8 +174,17 @@ function BlogPost() {
             "url": `${window.location.origin}/apple-touch-icon.png`
           }
         },
-        "keywords": post.tags.join(','),
-        "articleBody": post.content
+        "url": canonicalUrl,
+        "articleSection": post.category || undefined,
+        "keywords": safeTags.length ? safeTags.join(',') : undefined,
+        "wordCount": wordCount,
+        "articleBody": post.content,
+        "isAccessibleForFree": "True",
+        "interactionStatistic": {
+          "@type": "InteractionCounter",
+          "interactionType": { "@type": "ViewAction" },
+          "userInteractionCount": post.views || 0
+        }
       };
 
       
@@ -193,6 +205,41 @@ function BlogPost() {
         document.head.appendChild(canonical);
       }
       canonical.href = canonicalUrl;
+
+      // BreadcrumbList structured data
+      const breadcrumb = {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": window.location.origin
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Blog",
+            "item": `${window.location.origin}/blog`
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": post.title,
+            "item": canonicalUrl
+          }
+        ]
+      };
+
+      let crumbScript = document.querySelector('#blog-post-breadcrumbs');
+      if (!crumbScript) {
+        crumbScript = document.createElement('script');
+        crumbScript.id = 'blog-post-breadcrumbs';
+        crumbScript.type = 'application/ld+json';
+        document.head.appendChild(crumbScript);
+      }
+      crumbScript.textContent = JSON.stringify(breadcrumb);
     }
   }, [post, id]);
 

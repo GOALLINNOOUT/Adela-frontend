@@ -135,7 +135,7 @@ function BlogPost() {
 
   useEffect(() => {
     if (post) {
-      const fullImageUrl = `${window.location.origin}${getImageUrl(post.image)}`;
+  const fullImageUrl = getImageUrl(post.image);
       const canonicalUrl = `${window.location.origin}/blog/${id}`;
       
       
@@ -516,7 +516,7 @@ function BlogPost() {
   if (!post) {
     return null;
   }
-  const fullImageUrl = `${window.location.origin}${getImageUrl(displayPost.image)}`;
+  const fullImageUrl = getImageUrl(displayPost.image);
   const canonicalUrl = `${window.location.origin}/blog/${id}`;
   return (
     <>

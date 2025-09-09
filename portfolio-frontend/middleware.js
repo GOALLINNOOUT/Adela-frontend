@@ -19,7 +19,7 @@ export default async function middleware(request) {
     'apis-google', 'adsbot-google', 'google-structured-data-testing-tool',
     'googleweblight', 'mediabot', 'linkpreview', 'outbrain', 'quora link preview',
     'skypeuripreview', 'tumblr', 'vkshare', 'w3c_validator', 'whatsapp',
-    'yahoo! slurp', 'yandexbot', 'zoominfobot', 'medimate-linkpreview', 'pinterestbot', 'bitlybot', 'flipboardproxy', 'google favicon', 'apple news bot', 'google web preview', 'chrome-lighthouse', 'headlesschrome'
+    'yahoo! slurp', 'yandexbot', 'zoominfobot', 'medimate-linkpreview', 'pinterestbot', 'bitlybot', 'flipboardproxy', 'google favicon', 'apple news bot', 'google web preview', 'chrome-lighthouse', 'headlesschrome', 'python-requests', 'curl', 'wget', 'httpclient', 'okhttp', 'java', 'libwww-perl', 'php', 'ruby', 'go-http-client', 'node-fetch', 'axios', 'httpie', 'postmanruntime', 'insomnia', 'restsharp', 'httpclient', 'httpx', 'zgrab', 'masscan', 'nmap', 'fiddler', 'burp', 'owasp zap', 'sqlmap', 'acunetix', 'nessus', 'nikto', 'openvas', 'netsparker', 'w3af', 'arachni', 'skipfish', 'havij', 'webscarab', 'ratproxy', 'paros', 'zaproxy', 'fuzzer', 'dirbuster', 'gobuster', 'wfuzz', 'ffuf', 'bruteforce', 'hydra', 'medusa', 'ncrack', 'john the ripper', 'hashcat', 'burpsuite', 'sqlninja', 'sqlsus', 'sqlmap', 'xssed', 'xsssniper', 'xsser', 'beef', 'metasploit', 'cobalt strike', 'empire', 'powershell empire', 'pupy', 'ghostosint', 'theharvester', 'maltego', 'recon-ng', 'shodan', 'censys', 'zoomeye'
   ];
 
   const botRegex = new RegExp(BOT_AGENTS.map(a => a.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')).join('|'), 'i');

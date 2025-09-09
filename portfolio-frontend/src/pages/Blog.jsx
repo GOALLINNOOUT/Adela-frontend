@@ -101,6 +101,7 @@ function ImageWithPlaceholder({ src, alt }) {
 }
 
 function Blog() {
+  // Initialize loading as true by default since we're fetching on mount
   const [loading, setLoading] = useState(true);
   const [blogPosts, setBlogPosts] = useState([]);
   const [page, setPage] = useState(1);
@@ -122,16 +123,24 @@ function Blog() {
   const [observerSupported, setObserverSupported] = useState(typeof window !== 'undefined' && 'IntersectionObserver' in window);
   const minSkeletonMs = 200; // ensure skeleton shows at least this long (ms)
 
+  // Effect for initial data load
   useEffect(() => {
-    // initial load
     setBlogPosts([]);
     setPage(1);
     setHasMore(true);
+    // No need to set loading here as it's already true by default
     fetchBlogPosts(1, true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchBlogPosts = async (pageArg = 1, replace = false) => {
+    // Set loading state immediately
+    if (pageArg === 1) {
+      setLoading(true);
+    } else {
+      setLoadingMore(true);
+    }
+
     // Abort any in-flight request before starting a new one
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
@@ -139,16 +148,8 @@ function Blog() {
     const controller = new AbortController();
     abortControllerRef.current = controller;
 
-  let skeletonStart = 0;
-  let aborted = false;
-  if (pageArg === 1) skeletonStart = Date.now();
-
-  try {
-      if (pageArg === 1) {
-        setLoading(true);
-      } else {
-        setLoadingMore(true);
-      }
+    let skeletonStart = Date.now();
+    let aborted = false;  try {
 
       const params = new URLSearchParams();
       // These params are optional on the backend; if backend doesn't support pagination it will ignore them
@@ -214,7 +215,7 @@ function Blog() {
       setHasMore(false);
     } finally {
       // Ensure skeleton is visible for at least minSkeletonMs on initial load
-      if (pageArg === 1 && !aborted && skeletonStart) {
+      if (pageArg === 1 && !aborted) {
         const elapsed = Date.now() - skeletonStart;
         const remaining = Math.max(0, minSkeletonMs - elapsed);
         if (remaining > 0) {
@@ -222,8 +223,10 @@ function Blog() {
         }
       }
 
-      setLoading(false);
-      setLoadingMore(false);
+      if (!aborted) {
+        setLoading(false);
+        setLoadingMore(false);
+      }
       // clear controller if it's still the current one
       if (abortControllerRef.current === controller) abortControllerRef.current = null;
     }
@@ -323,6 +326,7 @@ function Blog() {
   useEffect(() => {
     // Cancel any in-flight request for previous filters
     if (abortControllerRef.current) abortControllerRef.current.abort();
+    setLoading(true); // Set loading to true before fetching new filtered results
     setBlogPosts([]);
     setPage(1);
     setHasMore(true);

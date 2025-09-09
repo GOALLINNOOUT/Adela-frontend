@@ -15,7 +15,11 @@ export default async function middleware(request) {
     'whatsapp', 'telegrambot', 'pinterest', 'googlebot', 'bingbot',
     'yandex', 'baiduspider', 'applebot', 'embedly', 'redditbot', 'discordbot',
     'duckduckbot', 'slurp', 'msnbot', 'semrushbot', 'ahrefsbot', 'seokicks',
-    'mj12bot', 'rogerbot', 'exabot', 'dotbot', 'screaming frog'
+    'mj12bot', 'rogerbot', 'exabot', 'dotbot', 'screaming frog', 'mediapartners-google',
+    'apis-google', 'adsbot-google', 'google-structured-data-testing-tool',
+    'googleweblight', 'mediabot', 'linkpreview', 'outbrain', 'quora link preview',
+    'skypeuripreview', 'tumblr', 'vkshare', 'w3c_validator', 'whatsapp',
+    'yahoo! slurp', 'yandexbot', 'zoominfobot', 'medimate-linkpreview', 'pinterestbot', 'bitlybot', 'flipboardproxy', 'google favicon', 'apple news bot', 'google web preview', 'chrome-lighthouse', 'headlesschrome'
   ];
 
   const botRegex = new RegExp(BOT_AGENTS.map(a => a.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')).join('|'), 'i');

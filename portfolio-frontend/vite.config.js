@@ -15,6 +15,14 @@ export default defineConfig({
       }
     }
   },
+  // Force Vite to pre-bundle these CKEditor deps which sometimes fail to load
+  // when the optimize cache is stale (common after installing deps).
+  optimizeDeps: {
+    include: [
+      '@ckeditor/ckeditor5-react',
+      '@ckeditor/ckeditor5-build-classic'
+    ]
+  },
   resolve: {
     alias: {
       '@': '/src' 

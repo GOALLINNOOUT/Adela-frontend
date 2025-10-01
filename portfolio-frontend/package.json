@@ -30,6 +30,12 @@
     "react-helmet-async": "^1.3.0",
     "react-i18next": "^15.5.3",
     "react-router-dom": "^6.18.0"
+    ,
+    "dompurify": "^2.4.0"
+  },
+  "optionalDependencies": {
+    "@ckeditor/ckeditor5-react": "^5.0.2",
+    "@ckeditor/ckeditor5-build-classic": "^37.1.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.0.4",

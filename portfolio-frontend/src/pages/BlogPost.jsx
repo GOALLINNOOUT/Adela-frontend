@@ -25,6 +25,7 @@ import {
   LinearProgress,
   Stack,
 } from '@mui/material';
+import DOMPurify from 'dompurify';
 import { 
   ArrowBack, 
   AccessTime, 
@@ -671,16 +672,17 @@ function BlogPost() {
 
               <Typography variant="subtitle1" paragraph>
                 {displayPost.excerpt}
-              </Typography>              <Typography
-                variant="body1"
+              </Typography>
+              <Box
+                component="article"
                 sx={{
                   whiteSpace: 'pre-wrap',
                   wordBreak: 'break-word',
                   mb: 4,
                 }}
-              >
-                {displayPost.content}
-              </Typography>              
+                ref={blogContentRef}
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(displayPost.content || '') }}
+              />
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}>
                 <Box sx={{ display: 'flex', gap: 1 }}>
                   <Tooltip title={currentUserReactions.like ? "Remove Like" : "Like"}>

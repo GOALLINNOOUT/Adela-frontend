@@ -40,6 +40,7 @@ import {
   Add as AddIcon,
 } from '@mui/icons-material';
 import SectionHeading from '../components/SectionHeading';
+import BlogEditor from '../components/BlogEditor';
 import { useAuth } from '../context/AuthContext';
 
 function Admin() {
@@ -70,6 +71,24 @@ function Admin() {
     readTime: '',
     image: null
   });
+
+  // Compute approximate read time from HTML content (words / 200 wpm)
+  const computeReadTime = (html) => {
+    if (!html) return '1 min read';
+    // strip tags
+    const text = html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+    const words = text ? text.split(' ').length : 0;
+    const minutes = Math.max(1, Math.round(words / 200));
+    return `${minutes} min read`;
+  };
+
+  // Compute word count from HTML content
+  const computeWordCount = (html) => {
+    if (!html) return 0;
+    const text = html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+    if (!text) return 0;
+    return text.split(' ').length;
+  };
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
@@ -183,8 +202,11 @@ function Admin() {
   };  const handleCreatePost = async () => {
     try {
       setIsCreatingPost(true);
-      const requiredFields = ['title', 'excerpt', 'content', 'category', 'author', 'readTime'];
-      const missingFields = requiredFields.filter(field => !postFormData[field]);
+  // Ensure readTime is computed from content before validation
+  const computedReadTime = computeReadTime(postFormData.content);
+  postFormData.readTime = computedReadTime;
+  const requiredFields = ['title', 'excerpt', 'content', 'category', 'author'];
+  const missingFields = requiredFields.filter(field => !postFormData[field]);
       
       if (missingFields.length > 0) {
         setSnackbar({
@@ -280,8 +302,11 @@ function Admin() {
   };  const handleUpdatePost = async () => {
     try {
       setIsUpdatingPost(true);
-      const requiredFields = ['title', 'excerpt', 'content', 'category', 'author', 'readTime'];
-      const missingFields = requiredFields.filter(field => !postFormData[field]);
+  // Ensure readTime is up to date for updates too
+  const computedReadTime2 = computeReadTime(postFormData.content);
+  postFormData.readTime = computedReadTime2;
+  const requiredFields = ['title', 'excerpt', 'content', 'category', 'author'];
+  const missingFields = requiredFields.filter(field => !postFormData[field]);
       
       if (missingFields.length > 0) {
         setSnackbar({
@@ -774,14 +799,27 @@ function Admin() {
               value={postFormData.excerpt}
               onChange={(e) => setPostFormData({ ...postFormData, excerpt: e.target.value })}
             />
-            <TextField
-              label="Content"
-              fullWidth
-              multiline
-              rows={6}
-              value={postFormData.content}
-              onChange={(e) => setPostFormData({ ...postFormData, content: e.target.value })}
-            />
+            {/* Rich text editor for content */}
+            <div>
+              {/* eslint-disable-next-line react/jsx-no-undef */}
+              <BlogEditor
+                initialData={postFormData.content || ''}
+                onChange={(html) => {
+                  const readTime = computeReadTime(html);
+                  const wordCount = computeWordCount(html);
+                  setPostFormData({ ...postFormData, content: html, readTime, wordCount });
+                  console.log('Edited HTML:', html);
+                }}
+              />
+              <Box sx={{ mt: 1, mb: 1, display: 'flex', gap: 2, alignItems: 'center' }}>
+                <Typography variant="caption" color="text.secondary">
+                  Estimated read time: {postFormData.readTime || computeReadTime(postFormData.content)}
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  Word count: {postFormData.wordCount ?? computeWordCount(postFormData.content)}
+                </Typography>
+              </Box>
+            </div>
             <FormControl fullWidth>
               <InputLabel>Category</InputLabel>
               <Select
@@ -826,12 +864,7 @@ function Admin() {
               value={postFormData.author}
               onChange={(e) => setPostFormData({ ...postFormData, author: e.target.value })}
             />
-            <TextField
-              label="Read Time (e.g., '5 min read')"
-              fullWidth
-              value={postFormData.readTime}
-              onChange={(e) => setPostFormData({ ...postFormData, readTime: e.target.value })}
-            />
+            {/* readTime is computed automatically from content */}
             <Box>
               <input
                 accept="image/*"

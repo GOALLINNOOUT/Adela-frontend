@@ -38,63 +38,70 @@ import SectionHeading from '../components/SectionHeading';
 import SearchIcon from '@mui/icons-material/Search';
 import { getImageUrl, handleImageError } from '../utils/imageHelper';
 import { Link as RouterLink } from 'react-router-dom';
+import heroPlaceholder from '../assets/images/hero.jpg';
 
 const MotionCard = motion(Card);
 
 // Small image component that shows a placeholder while the real image loads
 function ImageWithPlaceholder({ src, alt }) {
-  // Use an inline SVG data URI with the 🖼 emoji as the placeholder
+  // Use the provided hero image as a blurred placeholder overlay so the browser
+  // can start fetching the real image immediately (img src is set to the real URL).
+  // Fall back to the server default if the local asset is not present.
   const defaultFallback = getImageUrl('uploads/blog/default.jpg');
-  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='800' height='400' viewBox='0 0 800 400'><rect width='100%' height='100%' fill='%23f3f4f6'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='72' font-family='Segoe UI, Roboto, Arial, sans-serif'>🖼</text></svg>`;
-  let placeholder;
-  try {
-    placeholder = `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
-  } catch (e) {
-    placeholder = defaultFallback;
-  }
-  const [displaySrc, setDisplaySrc] = useState(placeholder);
+  const placeholderImage = heroPlaceholder || defaultFallback;
   const [loaded, setLoaded] = useState(false);
+  const [errored, setErrored] = useState(false);
+  const imgRef = useRef(null);
 
   useEffect(() => {
-    let cancelled = false;
+    // Reset loaded state when src changes
     setLoaded(false);
-    setDisplaySrc(placeholder);
-    if (!src) return;
-    const img = new Image();
-    img.src = src;
-    img.onload = () => {
-      if (!cancelled) {
-        setDisplaySrc(src);
-        setLoaded(true);
-      }
-    };
-    img.onerror = () => {
-      if (!cancelled) {
-        setDisplaySrc(placeholder);
-        setLoaded(true);
-      }
-    };
-    return () => {
-      cancelled = true;
-    };
+    setErrored(false);
   }, [src]);
 
+  const displayedSrc = src || defaultFallback;
+
   return (
-    <Box sx={{ width: '100%', height: 200, overflow: 'hidden' }}>
-      {!loaded && <Box className="shimmer" sx={{ width: '100%', height: '100%' }} />}
+    <Box sx={{ width: '100%', height: 200, overflow: 'hidden', position: 'relative' }}>
+      {/* The real image is allowed to load immediately by setting src to the real URL.
+          We use loading="lazy" and decoding="async" so the browser can optimize.
+      */}
       <Box
         component="img"
-        src={displaySrc}
+        ref={imgRef}
+        src={displayedSrc}
         alt={alt}
-        onError={(e) => handleImageError(e)}
+        loading="lazy"
+        decoding="async"
+        onLoad={() => setLoaded(true)}
+        onError={(e) => {
+          setErrored(true);
+          handleImageError(e);
+        }}
         sx={{
           width: '100%',
           height: '100%',
           objectFit: 'cover',
+          display: 'block',
           transition: 'opacity 300ms ease',
-          opacity: loaded ? 1 : 0,
-          position: 'relative',
+          opacity: loaded && !errored ? 1 : 0,
         }}
+      />
+
+      {/* Blurred placeholder overlay using the default image to provide a nicer LQIP */}
+      <Box
+        sx={{
+          position: 'absolute',
+          inset: 0,
+          backgroundImage: `url(${placeholderImage})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          filter: 'blur(8px)',
+          transform: 'scale(1.03)',
+          transition: 'opacity 350ms ease',
+          opacity: loaded ? 0 : 1,
+        }}
+        aria-hidden
       />
     </Box>
   );

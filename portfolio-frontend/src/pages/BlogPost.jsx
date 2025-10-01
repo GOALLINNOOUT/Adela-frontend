@@ -282,9 +282,21 @@ function BlogPost() {
       setLoading(true);
       console.log('Attempting to fetch blog post with ID:', id);
 
-      const response = await fetch(
-        `https://portfolio-backend-ckqx.onrender.com/api/blog/${id}`
-      );
+      // Check localStorage for previously viewed posts. We use this to ensure
+      // the backend only increments the view count once per device/browser.
+      const viewedRaw = localStorage.getItem('viewedPosts') || '[]';
+      let viewed = [];
+      try {
+        viewed = JSON.parse(viewedRaw);
+      } catch (e) {
+        viewed = [];
+      }
+
+      const isNewView = !viewed.includes(id);
+
+      const fetchUrl = `https://portfolio-backend-ckqx.onrender.com/api/blog/${id}${isNewView ? '?incrementView=true' : ''}`;
+
+      const response = await fetch(fetchUrl);
       console.log('Response status:', response.status);
 
       const contentType = response.headers.get('content-type');
@@ -309,6 +321,22 @@ function BlogPost() {
         setCurrentUserReaction(userReaction);
       }
       setPost(data);
+
+      // If this was a new view, persist the viewed id so we don't count it again
+      if (isNewView) {
+        try {
+          viewed.push(id);
+          localStorage.setItem('viewedPosts', JSON.stringify(viewed));
+
+          // Also set a simple cookie for clients that prefer cookies. Keep it
+          // short-lived (1 year) and small. We store as a JSON string.
+          const expiry = new Date();
+          expiry.setFullYear(expiry.getFullYear() + 1);
+          document.cookie = `viewedPosts=${encodeURIComponent(JSON.stringify(viewed))}; expires=${expiry.toUTCString()}; path=/`;
+        } catch (e) {
+          console.warn('Failed to persist viewedPosts:', e);
+        }
+      }
     } catch (error) {
       console.error('Error:', error);
       setSnackbarMessage('Failed to load blog post');

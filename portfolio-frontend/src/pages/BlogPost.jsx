@@ -88,6 +88,8 @@ function BlogPost() {
   ];
 
   const blogContentRef = useRef(null);
+  // track anchors we've already inserted previews for to avoid duplicates
+  const processedAnchorsRef = useRef(new WeakSet());
 
   // derived display object: prefer translated content when available
   const displayPost = translatedPost || post;
@@ -256,7 +258,7 @@ function BlogPost() {
       const canonical = document.querySelector("link[rel='canonical']");
       if (canonical) canonical.remove();
     };
-  }, []);
+  }, [blogContentRef, displayPost?.content]);
 
  
   useEffect(() => {    const handleScroll = () => {
@@ -286,14 +288,25 @@ function BlogPost() {
     if (!blogContentRef.current) return;
 
     const anchors = Array.from(blogContentRef.current.querySelectorAll('a'));
-    const processed = new WeakSet();
 
     anchors.forEach((a) => {
       try {
+        // skip if already processed (prevents duplicates on re-renders)
+        if (a.dataset.previewInserted === 'true' || processedAnchorsRef.current.has(a)) return;
+
         const href = a.href;
         if (!href || !href.startsWith('http')) return;
-        if (processed.has(a)) return;
-        processed.add(a);
+
+        // if a preview placeholder already exists right after this anchor, mark and skip
+        if (a.nextElementSibling && a.nextElementSibling.classList && a.nextElementSibling.classList.contains('link-preview-placeholder')) {
+          a.dataset.previewInserted = 'true';
+          processedAnchorsRef.current.add(a);
+          return;
+        }
+
+        // mark early to avoid race conditions
+        a.dataset.previewInserted = 'true';
+        processedAnchorsRef.current.add(a);
 
         // create a placeholder node after the link
         const placeholder = document.createElement('div');

@@ -9,6 +9,7 @@ import BuildIcon from '@mui/icons-material/Build';
 import { Link as RouterLink } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import SpotifyPlaylist from '../components/SpotifyPlaylist';
+import { getImageUrl, handleImageError } from '../utils/imageHelper';
 import heroImage from '../assets/images/hero.jpg';
 import project1Image from '../assets/images/project1.png'; 
 import project2Image from '../assets/images/project2.png';
@@ -19,6 +20,30 @@ const MotionTypography = motion(Typography);
 
 function Home() {
   const [testimonials, setTestimonials] = useState([]);
+  const [latestPosts, setLatestPosts] = useState([]);
+
+  useEffect(() => {
+    const fetchLatestPosts = async () => {
+      try {
+        const url = `${import.meta.env.VITE_API_URL}/api/blog?limit=3&sortBy=date`;
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Failed to fetch latest blog posts');
+        const data = await response.json();
+
+        // Backend may return array or object with posts
+        let posts = [];
+        if (Array.isArray(data)) posts = data;
+        else if (data && Array.isArray(data.posts)) posts = data.posts;
+        else if (data) posts = data.posts || [];
+
+        setLatestPosts(posts.slice(0, 3));
+      } catch (error) {
+        console.error('Error fetching latest posts:', error);
+      }
+    };
+
+    fetchLatestPosts();
+  }, []);
 
   useEffect(() => {
     const fetchTestimonials = async () => {
@@ -505,6 +530,46 @@ function Home() {
           </Grid>
         </Container>
       </Box>
+
+      {latestPosts.length > 0 && (
+        <Container sx={{ py: 6 }} component="section" aria-label="Latest Blog Posts">
+          <Typography variant="h2" align="center" gutterBottom>
+            Latest From The Blog
+          </Typography>
+          <Typography variant="body1" align="center" color="text.secondary" paragraph>
+            Recent articles and tutorials
+          </Typography>
+
+          <Grid container spacing={3}>
+            {latestPosts.map((post) => (
+              <Grid item xs={12} sm={6} md={4} key={post._id}>
+                <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }} component={RouterLink} to={`/blog/${post._id}`}>
+                  <Box
+                    component="img"
+                    src={getImageUrl(post.image)}
+                    alt={post.title}
+                    onError={(e) => handleImageError(e)}
+                    sx={{ width: '100%', height: 180, objectFit: 'cover' }}
+                  />
+                  <CardContent sx={{ flexGrow: 1 }}>
+                    <Typography variant="h6" gutterBottom>
+                      {post.title}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                      {post.excerpt}
+                    </Typography>
+                  </CardContent>
+                  <Box sx={{ p: 2 }}>
+                    <Button size="small" variant="outlined" component={RouterLink} to={`/blog/${post._id}`}>
+                      Read more
+                    </Button>
+                  </Box>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        </Container>
+      )}
 
 
     </Box>

@@ -89,6 +89,9 @@ function BlogPost() {
 
   const blogContentRef = useRef(null);
 
+  // derived display object: prefer translated content when available
+  const displayPost = translatedPost || post;
+
   const saveReadingProgress = (progress, scrollPosition) => {
     const readingProgress = JSON.parse(localStorage.getItem('readingProgress') || '{}');
     readingProgress[id] = {
@@ -627,7 +630,6 @@ function BlogPost() {
   };
 
   
-  const displayPost = translatedPost || post;
 
   if (loading) {
     return (

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   Box,
   Typography,
@@ -18,6 +18,8 @@ import {
 } from '@mui/material';
 import { useThemeContext } from '../context/ThemeContext';
 import { Delete, Reply, SubdirectoryArrowRight } from '@mui/icons-material';
+import DOMPurify from 'dompurify';
+import linkifyHtml from 'linkify-html';
 
 function Comments({ blogPostId }) {
   const [comments, setComments] = useState([]);
@@ -30,10 +32,100 @@ function Comments({ blogPostId }) {
   const [replyingTo, setReplyingTo] = useState(null);
   const theme = useTheme();
   const { mode } = useThemeContext();
+  const commentsContainerRef = useRef(null);
+  const processedAnchorsRef = useRef(new WeakSet());
 
   useEffect(() => {
     fetchComments();
   }, [blogPostId]);
+
+  // After comments render, find external anchors and insert link preview cards
+  useEffect(() => {
+    if (!commentsContainerRef.current) return;
+
+    const anchors = Array.from(commentsContainerRef.current.querySelectorAll('.comment-content a'));
+
+    anchors.forEach((a) => {
+      try {
+        if (a.dataset.previewInserted === 'true' || processedAnchorsRef.current.has(a)) return;
+        const href = a.href;
+        if (!href || !href.startsWith('http')) return;
+
+        // mark early
+        a.dataset.previewInserted = 'true';
+        processedAnchorsRef.current.add(a);
+
+        // create placeholder
+        const placeholder = document.createElement('div');
+        placeholder.className = 'comment-link-preview-placeholder';
+        placeholder.style.margin = '6px 0 12px';
+        a.insertAdjacentElement('afterend', placeholder);
+
+        const apiUrl = `${import.meta.env.VITE_API_URL || ''}/api/preview?url=${encodeURIComponent(href)}`;
+        fetch(apiUrl)
+          .then(res => res.json())
+          .then(data => {
+            if (!data || data.error) { placeholder.textContent = ''; return; }
+
+            const card = document.createElement('a');
+            card.href = data.url;
+            card.target = '_blank';
+            card.rel = 'noopener noreferrer';
+            card.style.display = 'flex';
+            card.style.gap = '10px';
+            card.style.alignItems = 'center';
+            card.style.textDecoration = 'none';
+            card.style.border = `1px solid ${theme.palette.divider}`;
+            card.style.padding = '6px';
+            card.style.borderRadius = '8px';
+            card.style.background = theme.palette.background.paper || (mode === 'dark' ? '#111' : '#fff');
+
+            const img = document.createElement('img');
+            img.src = data.image || '';
+            img.alt = data.title || data.domain;
+            img.style.width = '80px';
+            img.style.height = '50px';
+            img.style.objectFit = 'cover';
+            img.style.borderRadius = '6px';
+            if (!data.image) img.style.display = 'none';
+
+            const meta = document.createElement('div');
+            meta.style.display = 'flex';
+            meta.style.flexDirection = 'column';
+            meta.style.justifyContent = 'center';
+            meta.style.color = theme.palette.text.primary;
+
+            const title = document.createElement('div');
+            title.textContent = data.title || data.domain;
+            title.style.fontWeight = 600;
+            title.style.color = theme.palette.text.primary;
+
+            const desc = document.createElement('div');
+            desc.textContent = data.description || '';
+            desc.style.fontSize = '0.85rem';
+            desc.style.color = theme.palette.text.secondary;
+            desc.style.marginTop = '4px';
+            desc.style.overflow = 'hidden';
+            desc.style.textOverflow = 'ellipsis';
+            desc.style.display = '-webkit-box';
+            desc.style.webkitLineClamp = '2';
+            desc.style.webkitBoxOrient = 'vertical';
+
+            meta.appendChild(title);
+            if (data.description) meta.appendChild(desc);
+
+            card.appendChild(img);
+            card.appendChild(meta);
+
+            placeholder.appendChild(card);
+          })
+          .catch(() => { placeholder.textContent = ''; });
+
+      } catch (e) {
+        // ignore
+      }
+    });
+  }, [comments, commentsContainerRef.current, theme, mode]);
 
   const fetchComments = async () => {
     try {
@@ -192,18 +284,23 @@ function Comments({ blogPostId }) {
                 })()}
               </Box>
             </Box>
-            <Typography 
-              variant="body1" 
+            <Box
+              className="comment-content"
               sx={{
                 wordWrap: 'break-word',
                 overflowWrap: 'break-word',
                 maxWidth: '100%',
                 whiteSpace: 'pre-line',
-                mb: 1
+                mb: 1,
+                '& a': { color: 'primary.main' }
               }}
-            >
-              {comment.content}
-            </Typography>
+              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(linkifyHtml(comment.content || '', {
+                defaultProtocol: 'https',
+                target: '_blank',
+                attributes: { rel: 'noopener noreferrer' },
+                ignoreTags: ['a']
+              })) }}
+            />
           </Box>
         </Box>
       </Box>
@@ -293,7 +390,7 @@ function Comments({ blogPostId }) {
           <CircularProgress />
         </Box>
       ) : comments.length > 0 ? (
-        <Box>
+        <Box ref={commentsContainerRef}>
           {comments.map((comment, index) => (
             <Box key={comment._id}>
               <CommentComponent comment={comment} />

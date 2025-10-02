@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Paper, Box } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import Button from '@mui/material/Button';
@@ -33,9 +34,40 @@ const BlogEditor = ({ initialData = '', onChange, editorHeight = '500px' }) => {
   const editorRef = useRef(null);
   const [openEditor, setOpenEditor] = useState(false);
   const [imageSrc, setImageSrc] = useState(null);
+  const theme = useTheme();
 
   return (
-    <Paper elevation={4} sx={{ p: 2 }}>
+    <Paper
+      elevation={4}
+      sx={{
+        p: 2,
+        // target CKEditor classes to make the editable area and toolbar follow MUI theme
+        '& .ck-editor__editable_inline, & .ck-content': {
+          backgroundColor: 'background.paper',
+          color: 'text.primary',
+          minHeight: editorHeight,
+          caretColor: theme.palette.text.primary,
+          // ensure paragraphs inherit color
+          '& p': { color: 'text.primary' },
+          '& h1, & h2, & h3, & h4, & h5, & h6': { color: 'text.primary' },
+          '& a': { color: 'primary.main' },
+        },
+        '& .ck.ck-toolbar': {
+          backgroundColor: 'background.default',
+          borderColor: 'divider',
+          color: 'text.primary',
+        },
+        // toolbar buttons/icons
+        '& .ck.ck-button': {
+          color: 'text.primary'
+        },
+        // panel/tooltip styling
+        '& .ck-dropdown__panel': {
+          backgroundColor: 'background.paper',
+          color: 'text.primary'
+        }
+      }}
+    >
       <Box sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, overflow: 'hidden' }}>
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', p: 1, gap: 1 }}>
           <Button size="small" onClick={() => setOpenEditor(true)}>Upload & Edit Image</Button>

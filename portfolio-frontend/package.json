@@ -33,6 +33,8 @@
     "react-router-dom": "^6.18.0"
     ,
     "dompurify": "^2.4.0"
+    ,
+    "linkify-html": "^3.0.0"
   },
   "optionalDependencies": {
     "@ckeditor/ckeditor5-react": "^5.0.2",

@@ -26,6 +26,7 @@ import {
   Stack,
 } from '@mui/material';
 import DOMPurify from 'dompurify';
+import linkifyHtml from 'linkify-html';
 import { 
   ArrowBack, 
   AccessTime, 
@@ -276,6 +277,107 @@ function BlogPost() {
     handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Find external links inside the article and fetch preview metadata for each.
+  useEffect(() => {
+    if (!blogContentRef.current) return;
+
+    const anchors = Array.from(blogContentRef.current.querySelectorAll('a'));
+    const processed = new WeakSet();
+
+    anchors.forEach((a) => {
+      try {
+        const href = a.href;
+        if (!href || !href.startsWith('http')) return;
+        if (processed.has(a)) return;
+        processed.add(a);
+
+        // create a placeholder node after the link
+        const placeholder = document.createElement('div');
+        placeholder.className = 'link-preview-placeholder';
+        placeholder.style.margin = '8px 0 16px';
+        a.insertAdjacentElement('afterend', placeholder);
+
+        // fetch preview metadata from backend
+        const apiUrl = `${import.meta.env.VITE_API_URL || ''}/api/preview?url=${encodeURIComponent(href)}`;
+        fetch(apiUrl)
+          .then(res => res.json())
+          .then(data => {
+            if (!data || data.error) {
+              placeholder.textContent = '';
+              return;
+            }
+
+            // build a simple card
+            const card = document.createElement('a');
+            card.href = data.url;
+            card.target = '_blank';
+            card.rel = 'noopener noreferrer';
+            card.style.display = 'flex';
+            card.style.gap = '12px';
+            card.style.alignItems = 'center';
+            card.style.textDecoration = 'none';
+            card.style.border = '1px solid rgba(0,0,0,0.08)';
+            card.style.padding = '8px';
+            card.style.borderRadius = '8px';
+            card.style.background = 'var(--link-preview-bg, #fff)';
+
+            const img = document.createElement('img');
+            img.src = data.image || '';
+            img.alt = data.title || data.domain;
+            img.style.width = '120px';
+            img.style.height = '70px';
+            img.style.objectFit = 'cover';
+            img.style.borderRadius = '6px';
+            img.style.flex = '0 0 120px';
+            if (!data.image) img.style.display = 'none';
+
+            const meta = document.createElement('div');
+            meta.style.display = 'flex';
+            meta.style.flexDirection = 'column';
+            meta.style.justifyContent = 'center';
+            meta.style.color = 'inherit';
+
+            const title = document.createElement('div');
+            title.textContent = data.title || data.domain;
+            title.style.fontWeight = 600;
+            title.style.color = 'var(--link-preview-title, #000)';
+
+            const desc = document.createElement('div');
+            desc.textContent = data.description || '';
+            desc.style.fontSize = '0.9rem';
+            desc.style.color = 'var(--link-preview-desc, #444)';
+            desc.style.marginTop = '4px';
+            desc.style.overflow = 'hidden';
+            desc.style.textOverflow = 'ellipsis';
+            desc.style.display = '-webkit-box';
+            desc.style.webkitLineClamp = '2';
+            desc.style.webkitBoxOrient = 'vertical';
+
+            const domain = document.createElement('div');
+            domain.textContent = data.domain || new URL(data.url).hostname;
+            domain.style.fontSize = '0.8rem';
+            domain.style.color = 'var(--link-preview-domain, #777)';
+            domain.style.marginTop = '6px';
+
+            meta.appendChild(title);
+            if (data.description) meta.appendChild(desc);
+            meta.appendChild(domain);
+
+            card.appendChild(img);
+            card.appendChild(meta);
+
+            placeholder.appendChild(card);
+          })
+          .catch(err => {
+            placeholder.textContent = '';
+            // ignore preview errors
+          });
+      } catch (e) {
+        // ignore
+      }
+    });
+  }, [displayPost, blogContentRef.current]);
 
   const fetchPost = async () => {
     try {
@@ -725,7 +827,12 @@ function BlogPost() {
                   }
                 }}
                 ref={blogContentRef}
-                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(displayPost.content || '') }}
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(linkifyHtml(displayPost.content || '', {
+                  defaultProtocol: 'https',
+                  target: '_blank',
+                  attributes: { rel: 'noopener noreferrer' },
+                  ignoreTags: ['a']
+                })) }}
               />
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}>
                 <Box sx={{ display: 'flex', gap: 1 }}>

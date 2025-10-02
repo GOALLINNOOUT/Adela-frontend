@@ -94,11 +94,14 @@ function Comments({ blogPostId }) {
             meta.style.flexDirection = 'column';
             meta.style.justifyContent = 'center';
             meta.style.color = theme.palette.text.primary;
+            meta.style.maxWidth = 'calc(100% - 90px)';
 
             const title = document.createElement('div');
             title.textContent = data.title || data.domain;
             title.style.fontWeight = 600;
             title.style.color = theme.palette.text.primary;
+            title.style.wordBreak = 'break-word';
+            title.style.overflowWrap = 'anywhere';
 
             const desc = document.createElement('div');
             desc.textContent = data.description || '';
@@ -110,6 +113,8 @@ function Comments({ blogPostId }) {
             desc.style.display = '-webkit-box';
             desc.style.webkitLineClamp = '2';
             desc.style.webkitBoxOrient = 'vertical';
+            desc.style.wordBreak = 'break-word';
+            desc.style.overflowWrap = 'anywhere';
 
             meta.appendChild(title);
             if (data.description) meta.appendChild(desc);
@@ -288,11 +293,18 @@ function Comments({ blogPostId }) {
               className="comment-content"
               sx={{
                 wordWrap: 'break-word',
-                overflowWrap: 'break-word',
+                overflowWrap: 'anywhere',
+                wordBreak: 'break-word',
                 maxWidth: '100%',
                 whiteSpace: 'pre-line',
                 mb: 1,
-                '& a': { color: 'primary.main' }
+                '& a': {
+                  color: 'primary.main',
+                  wordBreak: 'break-word',
+                  overflowWrap: 'anywhere',
+                  display: 'inline-block',
+                  maxWidth: '100%'
+                }
               }}
               dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(linkifyHtml(comment.content || '', {
                 defaultProtocol: 'https',

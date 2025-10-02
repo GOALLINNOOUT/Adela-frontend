@@ -707,6 +707,22 @@ function BlogPost() {
                   whiteSpace: 'pre-wrap',
                   wordBreak: 'break-word',
                   mb: 4,
+                  // Ensure images included in the HTML content are responsive and never exceed viewport width
+                  '& img': {
+                    maxWidth: '90vw',
+                    width: '100%',
+                    height: 'auto',
+                    display: 'block',
+                    marginLeft: 'auto',
+                    marginRight: 'auto',
+                    objectFit: 'contain',
+                  },
+                  // Constrain embedded iframes or videos
+                  '& iframe, & video': {
+                    maxWidth: '90vw',
+                    width: '100%',
+                    height: 'auto'
+                  }
                 }}
                 ref={blogContentRef}
                 dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(displayPost.content || '') }}
@@ -725,8 +741,8 @@ function BlogPost() {
                           {reactions.like?.length || 0}
                         </Typography>
                       </IconButton>
-                    </span>
-                  </Tooltip>
+                      </span>
+                    </Tooltip>
 
                   <Tooltip title={currentUserReactions.love ? "Remove Love" : "Love"}>
                     <span>

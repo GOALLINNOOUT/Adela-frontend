@@ -35,6 +35,7 @@ const BlogEditor = ({ initialData = '', onChange, editorHeight = '500px' }) => {
   const [openEditor, setOpenEditor] = useState(false);
   const [imageSrc, setImageSrc] = useState(null);
   const theme = useTheme();
+  const toolbarHoverBg = theme.palette.action && theme.palette.action.hover ? theme.palette.action.hover : (theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)');
 
   // Re-apply theme colors to the CKEditor instance when the MUI theme changes.
   // CKEditor inserts its own DOM and sometimes applies inline styles at init,
@@ -115,15 +116,42 @@ const BlogEditor = ({ initialData = '', onChange, editorHeight = '500px' }) => {
           '& h1, & h2, & h3, & h4, & h5, & h6': { color: 'text.primary' },
           '& a': { color: 'primary.main' },
         },
-        '& .ck.ck-toolbar': {
-          backgroundColor: 'background.default',
-          borderColor: 'divider',
-          color: 'text.primary',
-        },
-        // toolbar buttons/icons
-        '& .ck.ck-button': {
-          color: 'text.primary'
-        },
+            '& .ck.ck-toolbar': {
+              backgroundColor: 'background.default',
+              borderColor: 'divider',
+              color: 'text.primary',
+            },
+            // toolbar buttons/icons — improve hover/active contrast using theme.action.hover
+            '& .ck.ck-toolbar .ck-button': {
+              color: 'text.primary',
+              backgroundColor: 'transparent',
+              borderRadius: 1,
+              transition: 'background-color 150ms ease',
+            },
+            // heading dropdown button (the toolbar button that opens heading options)
+            '& .ck.ck-toolbar .ck-heading-dropdown .ck-button, & .ck.ck-toolbar .ck-dropdown__button': {
+              color: 'text.primary',
+            },
+            // style the dropdown list items (heading options)
+            '& .ck-dropdown__panel .ck-list__item': {
+              backgroundColor: 'background.paper',
+              color: 'text.primary',
+            },
+            '& .ck-dropdown__panel .ck-list__item:hover, & .ck-dropdown__panel .ck-list__item:focus': {
+              backgroundColor: toolbarHoverBg,
+              color: 'text.primary',
+            },
+            '& .ck.ck-button:hover, & .ck.ck-button:focus, & .ck.ck-button.ck-on': {
+              backgroundColor: toolbarHoverBg,
+              color: 'text.primary',
+            },
+            // ensure SVG icons inherit current color for proper contrast
+            '& .ck.ck-button svg, & .ck.ck-toolbar svg': {
+              fill: 'currentColor',
+            },
+            '& .ck.ck-button[disabled]': {
+              opacity: 0.5,
+            },
         // panel/tooltip styling
         '& .ck-dropdown__panel': {
           backgroundColor: 'background.paper',

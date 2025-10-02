@@ -140,7 +140,7 @@ function Home() {
                 <Typography variant="h4" sx={{ mb: 4 }}>
                   Full Stack Developer & Designer
                 </Typography>                <Typography variant="body1" sx={{ mb: 4 }}>
-                  As a young and innovative Full Stack Developer, I specialize in creating modern web applications that are both beautiful and functional. 
+                  As an innovative Full Stack Developer, I specialize in creating modern web applications that are both beautiful and functional. 
                   I create beautiful and functional web applications at affordable rates. 
                   My modern tech stack and best practices ensure quality results for clients across the Globe.
                 </Typography>

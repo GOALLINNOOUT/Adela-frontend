@@ -29,19 +29,19 @@ function About() {
   return (
     <>
       <Helmet>
-        <title>About Adela | Full Stack Developer</title>
-        <meta name="description" content="Learn more about Adela, a passionate full-stack developer with expertise in frontend and backend technologies, design, and user experience." />
-        <meta name="keywords" content="Adela, about, full stack developer, web development, React, Node.js, portfolio" />
-        <meta name="author" content="ADELA" />
-        <meta property="og:title" content="About Adela | Full Stack Developer" />
-        <meta property="og:description" content="Discover Adela's journey, skills, and expertise in web development, design, and technology." />
+        <title>About Adelola Faith | MERN Stack Developer</title>
+        <meta name="description" content="Adelola Faith — MERN stack developer building modern, scalable, and user-friendly web applications. Experienced with MongoDB, Express, React, Node.js and tools like MUI, Framer Motion and JWT." />
+        <meta name="keywords" content="Adelola Faith, Adelola, MERN, full stack developer, React, Node.js, MongoDB, portfolio" />
+        <meta name="author" content="Adelola Faith" />
+        <meta property="og:title" content="About Adelola Faith | MERN Stack Developer" />
+        <meta property="og:description" content="Meet Adelola Faith — a MERN stack developer focused on building scalable, user-friendly web apps. Projects include portfolio sites, dashboards and MediMate, a health-tech platform." />
         <meta property="og:type" content="profile" />
-        <meta property="og:image" content="https://adelaportfolio.vercel.app/assets/hero-982354f0.jpg" />
+        <meta property="og:image" content="https://adelaportfolio.vercel.app/assets/about-cac83981.jpeg" />
         <meta property="og:url" content="https://adelaportfolio.vercel.app/about" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="About Adela | Full Stack Developer" />
-        <meta name="twitter:description" content="Learn more about Adela, a passionate full-stack developer with expertise in frontend and backend technologies, design, and user experience." />
-        <meta name="twitter:image" content="https://adelaportfolio.vercel.app/assets/hero-982354f0.jpg" />
+        <meta name="twitter:title" content="About Adelola Faith | MERN Stack Developer" />
+        <meta name="twitter:description" content="Adelola Faith — MERN stack developer building modern, scalable, and user-friendly web applications. Experienced with MongoDB, Express, React, Node.js and tools like MUI, Framer Motion and JWT." />
+        <meta name="twitter:image" content="https://adelaportfolio.vercel.app/assets/about-cac83981.jpeg" />
         <link rel="canonical" href="https://adelaportfolio.vercel.app/about" />
       </Helmet>
       {/* ...existing code... */}
@@ -58,20 +58,21 @@ function About() {
                   About Me
                 </Typography>
                 <Typography variant="body1" paragraph>
-                  Hello! I'm Adela, a passionate full-stack developer with a keen eye for design
-                  and a love for creating seamless user experiences. With a year of experience
-                  in web development, I've had the pleasure of working on various exciting projects
-                  that have helped businesses achieve their goals.
+                  Hi, I’m Adelola Faith, a MERN stack developer passionate about building modern,
+                  scalable, and user-friendly web applications. I love turning ideas into real product from clean, responsive interfaces to secure and efficient backends.
                 </Typography>
                 <Typography variant="body1" paragraph>
-                  My journey in technology began at a young age around 10 years old but my involvement in web development started in 2023. I developed a keen interest in understanding how websites function and perform efficiently.
-
-                However, in 2024, I was overwhelmed with academic commitments as I prepared for life-defining examinations, including WAEC, JAMB, and NECO. To maintain focus, I had to set aside all potential distractions. By August, I had successfully completed my exams, and shortly thereafter, my father enrolled me in an academy JIT Solution that specializes in web development, mobile applications, and various other technical fields.
-
-                During my time at the academy, I learned from experienced mentors, including Mr. Deji and Mr. Abraham, as well as from my colleagues. Since then, I have been continuously learning, adapting to emerging technologies, and strengthening my foundation in software development principles.
+                  I’ve worked on projects ranging from portfolio websites and dashboards to MediMate,
+                  a health-tech platform that combines telemedicine, medication reminders, and AI-driven
+                  insights to make healthcare more accessible. My stack includes MongoDB, Express,
+                  React, Node.js, and supporting tools like Material UI, ShadCN UI, Framer Motion, and JWT
+                  authentication.
                 </Typography>
                 <Typography variant="body1">
-                  When I'm not coding, you can find me sleeping, watching movies, reading, learning.
+                  Beyond coding, you’ll often find me on the football pitch, experimenting with new food
+                  ideas, or imagining how to one day build solutions that stand shoulder to shoulder with
+                  giants like Microsoft and Google. For me, it’s not just about writing code it’s about
+                  creating impact, pushing boundaries, and constantly improving.
                 </Typography>
               </motion.div>
             </Grid>

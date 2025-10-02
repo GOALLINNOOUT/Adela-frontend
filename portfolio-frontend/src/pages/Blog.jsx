@@ -33,6 +33,7 @@ import { useThemeContext } from '../context/ThemeContext';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import { AccessTime, Share, ArrowForward, ContentCopy, Bookmark, BookmarkBorder } from '@mui/icons-material';
+import CloseIcon from '@mui/icons-material/Close';
 import { motion } from 'framer-motion';
 import SectionHeading from '../components/SectionHeading';
 import SearchIcon from '@mui/icons-material/Search';
@@ -127,6 +128,73 @@ function Blog() {
   const { toggleColorMode, mode, isBlogPage } = useThemeContext();
   const sentinelRef = useRef(null);
   const abortControllerRef = useRef(null);
+  const searchInputRef = useRef(null);
+
+  // Utility: escape user input for use in regex
+  const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+  // Highlight occurrences of the query in a string. Returns an array of
+  // strings and <mark> elements (JSX) so it can be directly rendered.
+  // The highlight color adapts to the current theme mode for readability.
+  const highlightMatches = (text = '', query = '') => {
+    if (!query) return text;
+    try {
+      const re = new RegExp(`(${escapeRegExp(query)})`, 'gi');
+      const parts = String(text).split(re);
+      // Choose a highlight color depending on theme mode
+      const bg = mode === 'dark' ? 'rgba(255,193,7,0.18)' : 'rgba(255,235,59,0.45)';
+      return parts.map((part, idx) =>
+        re.test(part) ? (
+          <mark key={idx} style={{ backgroundColor: bg, padding: 0 }}>
+            {part}
+          </mark>
+        ) : (
+          <span key={idx}>{part}</span>
+        )
+      );
+    } catch (err) {
+      return text;
+    }
+  };
+
+  const clearSearch = () => {
+    setSearchQuery('');
+    setDebouncedSearch('');
+    // Keep focus on the input so user can start typing again quickly
+    try {
+      if (searchInputRef.current && typeof searchInputRef.current.focus === 'function') {
+        searchInputRef.current.focus();
+      }
+    } catch (err) {}
+  };
+
+  // Keyboard shortcuts: Escape to clear; Ctrl/Cmd+K to focus the search box
+  useEffect(() => {
+    const onKeyDown = (e) => {
+      // Ctrl/Cmd + K -> focus search
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        try {
+          if (searchInputRef.current && typeof searchInputRef.current.focus === 'function') {
+            searchInputRef.current.focus();
+            // place cursor at end
+            const val = searchInputRef.current.value || '';
+            searchInputRef.current.setSelectionRange(val.length, val.length);
+          }
+        } catch (err) {}
+      }
+
+      // Escape -> clear search
+      if (e.key === 'Escape' || e.key === 'Esc') {
+        if (searchQuery) {
+          e.preventDefault();
+          clearSearch();
+        }
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [searchQuery]);
   const [observerSupported, setObserverSupported] = useState(typeof window !== 'undefined' && 'IntersectionObserver' in window);
   const minSkeletonMs = 200; // ensure skeleton shows at least this long (ms)
 
@@ -140,11 +208,19 @@ function Blog() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const fetchBlogPosts = async (pageArg = 1, replace = false) => {
-    // Set loading state immediately
-    if (pageArg === 1) {
+  // fetchBlogPosts - now accepts an options object so callers can decide whether
+  // to show the full-page skeleton for page-1 fetches. This allows background
+  // searches to keep existing results visible while new results load.
+  const fetchBlogPosts = async (pageArg = 1, replace = false, options = { showSkeleton: true }) => {
+    // Determine whether to show the full-page skeleton. We completely
+    // suppress the skeleton when there's an active search (either the
+    // debounced query or the live input), because searches should be
+    // non-jarring and happen in the background.
+    const isActiveSearch = Boolean(searchQuery || debouncedSearch);
+    const shouldShowSkeleton = pageArg === 1 && (!options || options.showSkeleton !== false) && !isActiveSearch;
+    if (shouldShowSkeleton) {
       setLoading(true);
-    } else {
+    } else if (pageArg !== 1) {
       setLoadingMore(true);
     }
 
@@ -318,12 +394,22 @@ function Blog() {
 
   // Reset and refetch when search, category, sort, or bookmarked toggle changes
   // debounce searchQuery -> debouncedSearch (500ms)
+  // debounce searchQuery -> debouncedSearch (300ms)
   useEffect(() => {
     setIsSearching(true);
     const t = setTimeout(() => {
       setDebouncedSearch(searchQuery.trim());
       setIsSearching(false);
-    }, 500);
+      // After debounce completes, ensure the input stays focused so users can
+      // keep typing without having to click back into the field.
+      try {
+        if (searchInputRef.current && typeof searchInputRef.current.focus === 'function') {
+          searchInputRef.current.focus();
+        }
+      } catch (err) {
+        // ignore focus errors
+      }
+    }, 300);
     return () => {
       clearTimeout(t);
       setIsSearching(false);
@@ -333,11 +419,16 @@ function Blog() {
   useEffect(() => {
     // Cancel any in-flight request for previous filters
     if (abortControllerRef.current) abortControllerRef.current.abort();
-    setLoading(true); // Set loading to true before fetching new filtered results
-    setBlogPosts([]);
+    // We want to keep existing posts visible while a background request runs
+    // to avoid the jarring full-page skeleton on each keystroke / filter change.
     setPage(1);
     setHasMore(true);
-    fetchBlogPosts(1, true);
+  // Never show the full-page skeleton while the user is actively searching
+  // or typing. If there's a search query (current or debounced), always
+  // fetch in background and keep existing results visible.
+  const isSearchingNow = Boolean(searchQuery || debouncedSearch);
+  const showSkeleton = blogPosts.length === 0 && !isSearchingNow;
+  fetchBlogPosts(1, true, { showSkeleton });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearch, selectedCategory, sortBy, showBookmarked]);
 
@@ -396,7 +487,7 @@ function Blog() {
             subtitle="Insights & Updates"
             sx={{ color: mode === 'dark' ? 'text.primary' : 'inherit' }}
           />
-          {loading ? (
+          {loading && !searchQuery && !debouncedSearch ? (
             <>
               {/* Controls skeleton */}
               <Box mb={4} display="flex" flexWrap="wrap" gap={2} alignItems="center">
@@ -442,13 +533,25 @@ function Blog() {
                   size="small"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  inputRef={searchInputRef}
                   sx={{ flexGrow: 1 }}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        {searchQuery && (
+                          <IconButton size="small" onClick={clearSearch} aria-label="Clear search">
+                            <CloseIcon fontSize="small" />
+                          </IconButton>
+                        )}
+                        {isSearching ? (
+                          <CircularProgress size={16} />
+                        ) : (
+                          <SearchIcon fontSize="small" color="action" />
+                        )}
+                      </InputAdornment>
+                    ),
+                  }}
                 />
-                {isSearching && (
-                  <Typography variant="caption" color="text.secondary" sx={{ ml: 1 }}>
-                    Searching...
-                  </Typography>
-                )}
                 <FormControl size="small" sx={{ minWidth: 150 }}>
                   <InputLabel>Category</InputLabel>
                   <Select
@@ -519,7 +622,7 @@ function Blog() {
                             WebkitBoxOrient: 'vertical',
                           }}
                         >
-                          {post.title}
+                          {highlightMatches(post.title, debouncedSearch || searchQuery)}
                         </Typography>
                         <Typography
                           color="text.secondary"
@@ -532,7 +635,7 @@ function Blog() {
                             WebkitBoxOrient: 'vertical',
                           }}
                         >
-                          {post.excerpt}
+                          {highlightMatches(post.excerpt, debouncedSearch || searchQuery)}
                         </Typography>
                         <Box display="flex" alignItems="center" gap={1}>
                           <AccessTime fontSize="small" color="action" />

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Paper, Box } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
@@ -35,6 +35,69 @@ const BlogEditor = ({ initialData = '', onChange, editorHeight = '500px' }) => {
   const [openEditor, setOpenEditor] = useState(false);
   const [imageSrc, setImageSrc] = useState(null);
   const theme = useTheme();
+
+  // Re-apply theme colors to the CKEditor instance when the MUI theme changes.
+  // CKEditor inserts its own DOM and sometimes applies inline styles at init,
+  // so we must update the editor & toolbar programmatically when theme updates.
+  useEffect(() => {
+    const editor = editorRef.current;
+    if (!editor) return;
+
+    try {
+      const root = editor.editing.view.document.getRoot();
+      editor.editing.view.change((writer) => {
+        writer.setStyle('background-color', theme.palette.background.paper, root);
+        writer.setStyle('color', theme.palette.text.primary, root);
+        writer.setStyle('caret-color', theme.palette.text.primary, root);
+      });
+
+      // Toolbar styling: available via the editor UI view
+      const toolbarEl = editor.ui && editor.ui.view && editor.ui.view.toolbar && editor.ui.view.toolbar.element;
+      if (toolbarEl) {
+        toolbarEl.style.backgroundColor = theme.palette.background.default;
+        toolbarEl.style.color = theme.palette.text.primary;
+        // borderColor may not exist on palette; fallback to divider or a sensible shade
+        toolbarEl.style.borderColor = theme.palette.divider || (theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.12)' : '#e0e0e0');
+      }
+
+      // Apply styles directly to the editable DOM element as a fallback. Some CKEditor builds
+      // inject inline styles or render through a shadowed view where view-writer styles do not
+      // immediately reflect. Using the editable DOM node ensures colors/caret/background update.
+      try {
+        const editableEl = (editor.ui && typeof editor.ui.getEditableElement === 'function')
+          ? editor.ui.getEditableElement()
+          : null;
+
+        if (editableEl) {
+          editableEl.style.backgroundColor = theme.palette.background.paper;
+          editableEl.style.color = theme.palette.text.primary;
+          editableEl.style.caretColor = theme.palette.text.primary;
+          // ensure headings/paragraphs inherit color
+          editableEl.querySelectorAll('p, h1, h2, h3, h4, h5, h6').forEach((n) => {
+            n.style.color = theme.palette.text.primary;
+          });
+        } else {
+          // Best-effort fallback: search for .ck-content inside the page
+          document.querySelectorAll('.ck-content').forEach((el) => {
+            el.style.backgroundColor = theme.palette.background.paper;
+            el.style.color = theme.palette.text.primary;
+            el.style.caretColor = theme.palette.text.primary;
+          });
+        }
+      } catch (domErr) {
+        // non-fatal
+      }
+
+      // Update any dropdown panels that CKEditor may render elsewhere in the DOM
+      document.querySelectorAll('.ck-dropdown__panel').forEach((panel) => {
+        panel.style.backgroundColor = theme.palette.background.paper;
+        panel.style.color = theme.palette.text.primary;
+      });
+    } catch (e) {
+      // non-fatal: if CKEditor internals change, ignore the failure
+      // console.warn('Failed to reapply editor theme styles', e);
+    }
+  }, [theme.palette.mode, theme.palette.background.paper, theme.palette.background.default, theme.palette.text.primary, theme.palette.divider]);
 
   return (
     <Paper

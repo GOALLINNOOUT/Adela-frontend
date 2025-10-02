@@ -333,10 +333,11 @@ function BlogPost() {
             card.style.gap = '12px';
             card.style.alignItems = 'center';
             card.style.textDecoration = 'none';
-            card.style.border = '1px solid rgba(0,0,0,0.08)';
+            // style the card using MUI theme colors so it respects dark/light mode
+            card.style.border = `1px solid ${theme.palette.divider}`;
             card.style.padding = '8px';
             card.style.borderRadius = '8px';
-            card.style.background = 'var(--link-preview-bg, #fff)';
+            card.style.background = theme.palette.background.paper || (mode === 'dark' ? '#111' : '#fff');
 
             const img = document.createElement('img');
             img.src = data.image || '';
@@ -357,12 +358,12 @@ function BlogPost() {
             const title = document.createElement('div');
             title.textContent = data.title || data.domain;
             title.style.fontWeight = 600;
-            title.style.color = 'var(--link-preview-title, #000)';
+            title.style.color = theme.palette.text.primary || (mode === 'dark' ? '#fff' : '#000');
 
             const desc = document.createElement('div');
             desc.textContent = data.description || '';
             desc.style.fontSize = '0.9rem';
-            desc.style.color = 'var(--link-preview-desc, #444)';
+            desc.style.color = theme.palette.text.secondary || (mode === 'dark' ? '#bbb' : '#444');
             desc.style.marginTop = '4px';
             desc.style.overflow = 'hidden';
             desc.style.textOverflow = 'ellipsis';
@@ -373,7 +374,7 @@ function BlogPost() {
             const domain = document.createElement('div');
             domain.textContent = data.domain || new URL(data.url).hostname;
             domain.style.fontSize = '0.8rem';
-            domain.style.color = 'var(--link-preview-domain, #777)';
+            domain.style.color = theme.palette.text.disabled || (mode === 'dark' ? '#999' : '#777');
             domain.style.marginTop = '6px';
 
             meta.appendChild(title);

@@ -41,6 +41,7 @@ import {
 } from '@mui/icons-material';
 import SectionHeading from '../components/SectionHeading';
 import BlogEditor from '../components/BlogEditor';
+import ImageEditor from '../components/ImageEditor';
 import { useAuth } from '../context/AuthContext';
 
 function Admin() {
@@ -94,6 +95,41 @@ function Admin() {
     message: '',
     severity: 'success',
   });
+  const [imageEditorOpen, setImageEditorOpen] = useState(false);
+  const [imageEditorSrc, setImageEditorSrc] = useState(null);
+  const [tempImageFile, setTempImageFile] = useState(null);
+
+  const dataUrlToFile = (dataUrl, filename) => {
+    const arr = dataUrl.split(',');
+    const mime = arr[0].match(/:(.*?);/)[1];
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new File([u8arr], filename, { type: mime });
+  };
+
+  const handleImageEditorComplete = (dataUrl) => {
+    // convert dataUrl to File using original filename if available
+    const filename = tempImageFile ? tempImageFile.name : `image-${Date.now()}.jpg`;
+    try {
+      const file = dataUrlToFile(dataUrl, filename);
+      setPostFormData({ ...postFormData, image: file });
+    } catch (e) {
+      console.error('Failed to convert edited image to file', e);
+    }
+    setImageEditorOpen(false);
+    setImageEditorSrc(null);
+    setTempImageFile(null);
+  };
+
+  const handleImageEditorCancel = () => {
+    setImageEditorOpen(false);
+    setImageEditorSrc(null);
+    setTempImageFile(null);
+  };
 
   useEffect(() => {
     if (isAuthenticated()) {
@@ -470,10 +506,16 @@ function Admin() {
   };
 
   const handleFileChange = (event) => {
-    setPostFormData({
-      ...postFormData,
-      image: event.target.files[0]
-    });
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+    // read file as dataURL and open image editor
+    const reader = new FileReader();
+    reader.onload = () => {
+      setImageEditorSrc(reader.result);
+      setImageEditorOpen(true);
+      setTempImageFile(file);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleLogin = async (e) => {
@@ -899,6 +941,20 @@ function Admin() {
             )}
           </Button>
         </DialogActions>
+      </Dialog>
+
+      {/* Image editor dialog used when admin uploads an image */}
+      <Dialog open={imageEditorOpen} onClose={handleImageEditorCancel} maxWidth="lg" fullWidth>
+        <DialogTitle>Edit Image</DialogTitle>
+        <DialogContent>
+          {imageEditorSrc && (
+            <ImageEditor
+              src={imageEditorSrc}
+              onCancel={handleImageEditorCancel}
+              onComplete={handleImageEditorComplete}
+            />
+          )}
+        </DialogContent>
       </Dialog>
 
       <Snackbar

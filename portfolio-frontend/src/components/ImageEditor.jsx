@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef } from 'react';
 import PropTypes from 'prop-types';
 import Cropper from 'react-easy-crop';
-import { Box, Slider, Button, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
+import { Box, Slider, Button, Select, MenuItem, FormControl, InputLabel, Checkbox, FormControlLabel } from '@mui/material';
 
 // Utility to create a cropped image from a dataURL using canvas
 async function getCroppedImg(imageSrc, pixelCrop, outputWidth) {
@@ -40,14 +40,21 @@ const ImageEditor = ({ src, onCancel, onComplete }) => {
   const [aspect, setAspect] = useState(16 / 9);
   const [pixelCrop, setPixelCrop] = useState(null);
   const [outputWidth, setOutputWidth] = useState(1200);
+  const [keepOriginal, setKeepOriginal] = useState(false);
 
   const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
     setPixelCrop(croppedAreaPixels);
   }, []);
 
   const handleApply = async () => {
-    if (!pixelCrop) return;
     try {
+      if (keepOriginal) {
+        // return the original data URL
+        onComplete(src);
+        return;
+      }
+
+      if (!pixelCrop) return;
       const dataUrl = await getCroppedImg(src, pixelCrop, Number(outputWidth));
       onComplete(dataUrl);
     } catch (e) {
@@ -69,16 +76,27 @@ const ImageEditor = ({ src, onCancel, onComplete }) => {
         />
       </Box>
 
-      <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mt: 2 }}>
+        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mt: 2 }}>
         <Box sx={{ width: 200 }}>
           <Slider value={zoom} min={1} max={3} step={0.01} onChange={(e, v) => setZoom(v)} />
         </Box>
+          <FormControlLabel
+            control={(
+              <Checkbox
+                checked={keepOriginal}
+                onChange={(e) => setKeepOriginal(e.target.checked)}
+              />
+            )}
+            label="Keep original (no crop)"
+            sx={{ ml: 1 }}
+          />
         <FormControl size="small" sx={{ minWidth: 140 }}>
           <InputLabel>Aspect</InputLabel>
           <Select
             value={aspect}
             label="Aspect"
             onChange={(e) => setAspect(Number(e.target.value))}
+              disabled={keepOriginal}
           >
             <MenuItem value={16 / 9}>16:9</MenuItem>
             <MenuItem value={4 / 3}>4:3</MenuItem>

@@ -29,18 +29,18 @@ function About() {
   return (
     <>
       <Helmet>
-        <title>About Adelola Faith | MERN Stack Developer</title>
-        <meta name="description" content="Adelola Faith — MERN stack developer building modern, scalable, and user-friendly web applications. Experienced with MongoDB, Express, React, Node.js and tools like MUI, Framer Motion and JWT." />
-        <meta name="keywords" content="Adelola Faith, Adelola, MERN, full stack developer, React, Node.js, MongoDB, portfolio" />
-        <meta name="author" content="Adelola Faith" />
-        <meta property="og:title" content="About Adelola Faith | MERN Stack Developer" />
-        <meta property="og:description" content="Meet Adelola Faith — a MERN stack developer focused on building scalable, user-friendly web apps. Projects include portfolio sites, dashboards and MediMate, a health-tech platform." />
+        <title>About Faith Adeyekun| MERN Stack Developer</title>
+        <meta name="description" content="Adeyekun Faith — MERN stack developer building modern, scalable, and user-friendly web applications. Experienced with MongoDB, Express, React, Node.js and tools like MUI, Framer Motion and JWT." />
+        <meta name="keywords" content="Faith Adeyekun, Adela, MERN, full stack developer, React, Node.js, MongoDB, portfolio" />
+        <meta name="author" content="Faith Adeyekun" />
+        <meta property="og:title" content="About Adeyekun Faith| MERN Stack Developer" />
+        <meta property="og:description" content="Meet Faith Adeyekun — a MERN stack developer focused on building scalable, user-friendly web apps. Projects include portfolio sites, dashboards and MediMate, a health-tech platform." />
         <meta property="og:type" content="profile" />
         <meta property="og:image" content="https://adelaportfolio.vercel.app/assets/about-cac83981.jpeg" />
         <meta property="og:url" content="https://adelaportfolio.vercel.app/about" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="About Adelola Faith | MERN Stack Developer" />
-        <meta name="twitter:description" content="Adelola Faith — MERN stack developer building modern, scalable, and user-friendly web applications. Experienced with MongoDB, Express, React, Node.js and tools like MUI, Framer Motion and JWT." />
+        <meta name="twitter:title" content="About Adeyekun Faith| MERN Stack Developer" />
+        <meta name="twitter:description" content="Faith Adeyekun — MERN stack developer building modern, scalable, and user-friendly web applications. Experienced with MongoDB, Express, React, Node.js and tools like MUI, Framer Motion and JWT." />
         <meta name="twitter:image" content="https://adelaportfolio.vercel.app/assets/about-cac83981.jpeg" />
         <link rel="canonical" href="https://adelaportfolio.vercel.app/about" />
       </Helmet>
@@ -58,7 +58,7 @@ function About() {
                   About Me
                 </Typography>
                 <Typography variant="body1" paragraph>
-                  Hi, I’m Adelola Faith, a MERN stack developer passionate about building modern,
+                  Hi, I’m Faith Adeyekun, a MERN stack developer passionate about building modern,
                   scalable, and user-friendly web applications. I love turning ideas into real product from clean, responsive interfaces to secure and efficient backends.
                 </Typography>
                 <Typography variant="body1" paragraph>

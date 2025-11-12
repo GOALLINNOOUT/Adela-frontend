@@ -33,7 +33,7 @@ function About() {
         <meta name="description" content="Adeyekun Faith — MERN stack developer building modern, scalable, and user-friendly web applications. Experienced with MongoDB, Express, React, Node.js and tools like MUI, Framer Motion and JWT." />
         <meta name="keywords" content="Faith Adeyekun, Adela, MERN, full stack developer, React, Node.js, MongoDB, portfolio" />
         <meta name="author" content="Faith Adeyekun" />
-        <meta property="og:title" content="About Adeyekun Faith| MERN Stack Developer" />
+        <meta property="og:title" content="About Faith Adeyekun| MERN Stack Developer" />
         <meta property="og:description" content="Meet Faith Adeyekun — a MERN stack developer focused on building scalable, user-friendly web apps. Projects include portfolio sites, dashboards and MediMate, a health-tech platform." />
         <meta property="og:type" content="profile" />
         <meta property="og:image" content="https://adelaportfolio.vercel.app/assets/about-cac83981.jpeg" />

@@ -771,7 +771,7 @@ function BlogPost() {
                 sx={{
                   width: '100%',
                   height: { xs: '200px', md: '400px' },
-                  objectFit: 'cover',
+                  objectFit: 'contain',
                   borderRadius: 2,
                   mb: 4,
                   backgroundColor: 'grey.100',

@@ -22,30 +22,52 @@ const MotionCard = motion(Card);
 
 const services = [
   {
-    title: 'Web Development',
-    description: 'Custom web applications tailored to your business needs',
-    price: 'Starting at $500',
+    title: '🚀 MVP & Full-Stack Product Development',
+    description: 'For founders and startups turning ideas into production-ready products.',
+    bestFor: 'Startups, solo founders, early-stage products',
     features: [
-      'Custom Frontend Development',
-      'Backend API Development',
-      'Database Design & Integration',
-      'Responsive Design',
-      'Performance Optimization',
-      'SEO Best Practices',
+      'End-to-end React & Node.js applications',
+      'Secure authentication & API architecture',
+      'Scalable database design (MongoDB)',
+      'Real-world experience from projects like MediMate',
     ],
+    outcome: 'a production-ready product you can grow with.',
   },
   {
-    title: 'Consulting',
-    description: 'Technical guidance and solutions for your projects',
-    price: '$25/hour',
+    title: '🎨 Frontend Engineering & UI Systems',
+    description: 'For teams that want fast, clean, and intuitive user experiences.',
+    bestFor: 'Design-focused teams, UX-first products',
     features: [
-      'Technical Architecture',
-      'Code Review',
-      'Performance Optimization',
-      'Best Practices Implementation',
-      'Team Training',
-      'Project Planning',
+      'High-performance React interfaces',
+      'Design systems with ShadCN UI & Material UI',
+      'Smooth animations with Framer Motion',
+      'Fully responsive, accessible layouts',
     ],
+    outcome: 'faster load times and better user retention.',
+  },
+  {
+    title: '🔐 Backend, APIs & Integrations',
+    description: 'When reliability, security, and scalability matter.',
+    bestFor: 'Data-driven products, API-first platforms',
+    features: [
+      'RESTful APIs with Node.js & Express',
+      'JWT & Google OAuth authentication',
+      'Database optimization & integration',
+      'Third-party services and cloud integrations',
+    ],
+    outcome: 'a backend that doesn\'t break under scale.',
+  },
+  {
+    title: '🧠 Technical Consulting & Code Review',
+    description: 'For teams already building who need direction or optimization.',
+    bestFor: 'Growing teams, existing projects needing optimization',
+    features: [
+      'Architecture planning & system design',
+      'Codebase review and refactoring',
+      'Performance optimization',
+      'Best practices & team guidance',
+    ],
+    outcome: 'fewer bugs, faster delivery, cleaner systems.',
   },
 ];
 
@@ -66,7 +88,7 @@ function Services() {
 
         <Grid container spacing={4}>
           {services.map((service, index) => (
-            <Grid item xs={12} md={4} key={service.title}>
+            <Grid item xs={12} md={6} key={service.title}>
               <MotionCard
                 elevation={3}
                 sx={{ height: '100%' }}
@@ -78,22 +100,21 @@ function Services() {
                 <CardContent>
                   <Stack spacing={3}>
                     <Box>
-                      <Typography variant="h4" component="h2" gutterBottom>
+                      <Typography variant="h5" component="h2" gutterBottom sx={{ fontWeight: 600 }}>
                         {service.title}
                       </Typography>
                       <Typography
-                        variant="subtitle1"
+                        variant="body1"
                         color="text.secondary"
                         paragraph
                       >
                         {service.description}
                       </Typography>
                       <Typography
-                        variant="h5"
-                        color="primary"
-                        sx={{ mb: 3 }}
+                        variant="caption"
+                        sx={{ display: 'block', color: 'primary.main', fontWeight: 500, mb: 2 }}
                       >
-                        {service.price}
+                        Best for: {service.bestFor}
                       </Typography>
                     </Box>
 
@@ -108,6 +129,12 @@ function Services() {
                       ))}
                     </List>
 
+                    <Box sx={{ bgcolor: 'action.hover', p: 2, borderRadius: 1 }}>
+                      <Typography variant="body2" color="text.secondary">
+                        <strong>Outcome:</strong> {service.outcome}
+                      </Typography>
+                    </Box>
+
                     <Button
                       variant="contained"
                       component={RouterLink}
@@ -115,7 +142,7 @@ function Services() {
                       size="large"
                       fullWidth
                     >
-                      Get Started
+                      Discuss Your Project
                     </Button>
                   </Stack>
                 </CardContent>
@@ -194,15 +221,21 @@ function Services() {
           }}
         >
           <Typography variant="h3" gutterBottom>
-            Ready to Start Your Project?
+            Let's Build Something That Lasts
           </Typography>
           <Typography
             variant="subtitle1"
             color="text.secondary"
+            sx={{ mb: 2, maxWidth: 600, mx: 'auto' }}
+          >
+            If you're looking for a developer who thinks beyond code and focuses on <strong>real outcomes</strong>, let's talk.
+          </Typography>
+          <Typography
+            variant="body2"
+            color="text.secondary"
             sx={{ mb: 4, maxWidth: 600, mx: 'auto' }}
           >
-            Let's discuss how I can help bring your vision to life. Schedule a free
-            consultation today.
+            Pricing is flexible and based on project scope.
           </Typography>
           <Button
             variant="contained"
@@ -210,7 +243,7 @@ function Services() {
             component={RouterLink}
             to="/contact"
           >
-            Schedule Consultation
+            Start a Conversation
           </Button>
         </Box>
       </Container>

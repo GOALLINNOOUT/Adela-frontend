@@ -10,14 +10,23 @@ type BlogListResponse = {
 };
 
 export async function getBlogPosts(query = "") {
-  const data = await backendFetch<BlogListResponse>(`/api/blog${query}`, {
-    next: { revalidate: 300 }
-  });
+  try {
+    const data = await backendFetch<BlogListResponse>(`/api/blog${query}`, {
+      next: { revalidate: 300 }
+    });
 
-  return {
-    ...data,
-    posts: Array.isArray(data.posts) ? data.posts.map(mapBlogSummary) : []
-  };
+    return {
+      ...data,
+      posts: Array.isArray(data.posts) ? data.posts.map(mapBlogSummary) : []
+    };
+  } catch {
+    return {
+      posts: [],
+      total: 0,
+      page: 1,
+      limit: 0
+    };
+  }
 }
 
 export async function getBlogPost(id: string) {
@@ -29,11 +38,15 @@ export async function getBlogPost(id: string) {
 }
 
 export async function getTestimonials() {
-  const data = await backendFetch<any[]>(`/api/testimonials`, {
-    next: { revalidate: 300 }
-  });
+  try {
+    const data = await backendFetch<any[]>(`/api/testimonials`, {
+      next: { revalidate: 300 }
+    });
 
-  return Array.isArray(data) ? data.map(mapTestimonial) : [];
+    return Array.isArray(data) ? data.map(mapTestimonial) : [];
+  } catch {
+    return [];
+  }
 }
 
 export async function getAboutAuthor(): Promise<AboutAuthorProfile> {

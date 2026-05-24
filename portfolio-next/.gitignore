@@ -3,3 +3,7 @@ node_modules
 .env.local
 dist
 coverage
+.env
+.DS_Store
+/.env
+.env.example

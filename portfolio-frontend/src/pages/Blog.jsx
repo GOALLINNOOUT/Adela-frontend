@@ -43,11 +43,8 @@ import heroPlaceholder from '../assets/images/hero.jpg';
 
 const MotionCard = motion(Card);
 
-// Small image component that shows a placeholder while the real image loads
 function ImageWithPlaceholder({ src, alt }) {
-  // Use the provided hero image as a blurred placeholder overlay so the browser
-  // can start fetching the real image immediately (img src is set to the real URL).
-  // Fall back to the server default if the local asset is not present.
+  
   const defaultFallback = getImageUrl('uploads/blog/default.jpg');
   const placeholderImage = heroPlaceholder || defaultFallback;
   const [loaded, setLoaded] = useState(false);
@@ -64,9 +61,7 @@ function ImageWithPlaceholder({ src, alt }) {
 
   return (
     <Box sx={{ width: '100%', height: 200, overflow: 'hidden', position: 'relative' }}>
-      {/* The real image is allowed to load immediately by setting src to the real URL.
-          We use loading="lazy" and decoding="async" so the browser can optimize.
-      */}
+     
       <Box
         component="img"
         ref={imgRef}

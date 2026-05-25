@@ -9,7 +9,7 @@ export function buildMetadata({
   title,
   description,
   path = "/",
-  image = "/images/hero.jpg"
+  image = "/images/image.png"
 }: {
   title: string;
   description: string;

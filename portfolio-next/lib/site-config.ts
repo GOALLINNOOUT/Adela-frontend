@@ -97,7 +97,7 @@ export const projects: Project[] = [
     ],
     stack: ["React", "Material UI", "Node.js", "Express", "MongoDB"],
     image: "/images/project2.png",
-    liveUrl: "https://adelaportfolio.vercel.app/"
+    liveUrl: "https://adelaportfoliov1.vercel.app/"
   },
   {
     slug: "jcs-closet",

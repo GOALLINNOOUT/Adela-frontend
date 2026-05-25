@@ -39,14 +39,14 @@ export const metadata: Metadata = {
     description: siteConfig.seo.description,
     url: absoluteUrl("/"),
     siteName: siteConfig.name,
-    images: [{ url: absoluteUrl("/images/hero.jpg") }],
+    images: [{ url: absoluteUrl("/images/image.png") }],
     type: "website"
   },
   twitter: {
     card: "summary_large_image",
     title: siteConfig.seo.title,
     description: siteConfig.seo.description,
-    images: [absoluteUrl("/images/hero.jpg")]
+    images: [absoluteUrl("/images/image.png")]
   }
 };
 

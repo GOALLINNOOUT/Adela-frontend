@@ -116,6 +116,32 @@ export const projects: Project[] = [
     image: "/images/jccloset.png",
     liveUrl: "https://jccloset.vercel.app/"
   },
+   {
+  slug: "devmate",
+  title: "DevMate",
+  summary:
+    "A cross-platform Rust CLI for diagnosing projects, inspecting development environments, and automating common developer workflows.",
+  challenge:
+    "Developers often switch between multiple tools to inspect projects, validate configuration, analyze repositories, and troubleshoot development environments. DevMate brings these workflows into a single command-line tool.",
+  outcome:
+    "Built as a fast, cross-platform Rust application, DevMate provides project analysis, Git insights, environment inspection, JSON utilities, JWT tooling, system diagnostics, and machine-readable JSON output for automation.",
+  story: [
+    "DevMate is a developer productivity CLI built in Rust for Windows, Linux, and macOS. It focuses on diagnosing projects and reducing the time developers spend jumping between different utilities.",
+    "The tool includes project analysis, Git repository inspection, .env validation, JSON formatting and validation, JWT generation and verification, file system analysis, developer tool health checks, process management, and live system monitoring.",
+    "Every major diagnostic command supports structured JSON output, making DevMate useful both in interactive terminals and inside CI/CD pipelines, scripts, and other automation workflows. The project demonstrates my interest in systems programming, developer tooling, and building fast, reliable software with Rust."
+  ],
+  stack: [
+    "Rust",
+    "CLI",
+    "Cargo",
+    "Git",
+    "Cross-platform",
+    "JSON",
+    "JWT"
+  ],
+  image: "/images/devmate.png",
+  githubUrl: "https://github.com/GOALLINNOOUT/Devmate"
+},
   {
     slug: "scentsation-by-jc",
     title: "Scentsation by JC",
